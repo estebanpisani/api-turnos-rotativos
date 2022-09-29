@@ -41,9 +41,9 @@ public class EmpleadoController {
     }
     @PutMapping("/{id}")
     public ResponseEntity<Empleado> updateEmpleado(@PathVariable Long id, @RequestBody Empleado empleado){
-        Empleado newEmpleado = empleadoService.createEmpleado(empleado);
-        if(newEmpleado != null){
-            return new ResponseEntity<>(empleado, HttpStatus.OK);
+        Empleado updatedEmpleado = empleadoService.updateEmpleado(id, empleado);
+        if(updatedEmpleado != null){
+            return new ResponseEntity<>(updatedEmpleado, HttpStatus.OK);
         }
         return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
     }
