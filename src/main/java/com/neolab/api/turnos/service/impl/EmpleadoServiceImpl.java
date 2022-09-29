@@ -4,9 +4,10 @@ import com.neolab.api.turnos.entity.Empleado;
 import com.neolab.api.turnos.repository.EmpleadoRepository;
 import com.neolab.api.turnos.service.EmpleadoService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
-
+@Service
 public class EmpleadoServiceImpl implements EmpleadoService {
     @Autowired
     EmpleadoRepository empleadoRepository;
