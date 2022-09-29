@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
@@ -27,10 +28,12 @@ public class Empleado {
     private LocalDate fechaDeNacimiento;
     @NotNull
     @NotBlank
+    @Email
     private String email;
     @NotNull
     @NotBlank
     private String password;
+    private String telefono;
     private LocalDate fechaAlta;
     private LocalDate fechaBaja;
 
