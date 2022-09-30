@@ -12,12 +12,6 @@ public class JornadaServiceImpl implements JornadaService {
 
     @Override
     public JornadaDTO createJornada(JornadaDTO dto) {
-        if (dto.getType().equals(JornadaEnum.NORMAL)) {
-            JornadaNormal jornadaNormal = new JornadaNormal();
-            jornadaNormal.setTimeIn(dto.getDateTimeIn());
-            jornadaNormal.setTimeOut(dto.getDateTimeOut());
-        } else if (dto.getType().equals(JornadaEnum.EXTRA))
-
         return null;
     }
 
@@ -27,7 +21,7 @@ public class JornadaServiceImpl implements JornadaService {
     }
 
     @Override
-    public List<JornadaDTO> getJornadas() {
+    public List<JornadaDTO> getJornadasByEmpleado(Long id) {
         return null;
     }
 
