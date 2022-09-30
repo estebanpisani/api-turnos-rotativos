@@ -1,14 +1,14 @@
 package com.neolab.api.turnos.service;
 
-import com.neolab.api.turnos.entity.Empleado;
+import com.neolab.api.turnos.dto.EmpleadoDTO;
 
 import java.util.List;
 
 public interface EmpleadoService {
 
-    Empleado createEmpleado(Empleado empleado);
-    Empleado updateEmpleado(Long id, Empleado empleado);
-    List<Empleado> getEmpleados();
-    Empleado getEmpleadoById(Long id);
+    EmpleadoDTO createEmpleado(EmpleadoDTO dto);
+    EmpleadoDTO updateEmpleado(Long id, EmpleadoDTO dto);
+    List<EmpleadoDTO> getEmpleados();
+    EmpleadoDTO getEmpleadoById(Long id);
     void deleteEmpleado(Long id);
 }

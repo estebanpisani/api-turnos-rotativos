@@ -18,21 +18,21 @@ public class Empleado {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    @NotNull
-    @NotBlank
+//    @NotNull
+//    @NotBlank
     private String nombre;
-    @NotNull
-    @NotBlank
+//    @NotNull
+//    @NotBlank
     private String apellido;
-    @NotNull
-    @NotBlank
+//    @NotNull
+//    @NotBlank
     private LocalDate fechaDeNacimiento;
-    @NotNull
-    @NotBlank
-    @Email
+//    @NotNull
+//    @NotBlank
+//    @Email
     private String email;
-    @NotNull
-    @NotBlank
+//    @NotNull
+//    @NotBlank
     private String password;
     private String telefono;
     private LocalDate fechaAlta;

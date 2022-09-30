@@ -29,8 +29,8 @@ public class Jornada {
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "empleado_id", insertable = false, updatable = false)
     protected Empleado empleado;
-    @NotNull
-    @NotBlank
+//    @NotNull
+//    @NotBlank
     @Column(name="empleado_id", nullable = false)
     private Long empleadoId;
 

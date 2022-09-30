@@ -1,5 +1,6 @@
 package com.neolab.api.turnos.controllers;
 
+import com.neolab.api.turnos.dto.EmpleadoDTO;
 import com.neolab.api.turnos.entity.Empleado;
 import com.neolab.api.turnos.service.impl.EmpleadoServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,36 +17,36 @@ public class EmpleadoController {
     EmpleadoServiceImpl empleadoService;
 
     @GetMapping()
-    public ResponseEntity<List<Empleado>> getEmpleados(){
-        List<Empleado> empleados = empleadoService.getEmpleados();
+    public ResponseEntity<?> getEmpleados(){
+        List<EmpleadoDTO> empleados = empleadoService.getEmpleados();
         if(empleados != null) {
             return new ResponseEntity<>(empleados, HttpStatus.OK);
         }
-        return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>("Aún no hay empleados", HttpStatus.BAD_REQUEST);
     }
     @GetMapping("/{id}")
-    public ResponseEntity<Empleado> getEmpleadoPorId(@PathVariable Long id){
-        Empleado empleado = empleadoService.getEmpleadoById(id);
-        if(empleado != null) {
-            return new ResponseEntity<>(empleado, HttpStatus.OK);
+    public ResponseEntity<?> getEmpleadoPorId(@PathVariable Long id){
+        EmpleadoDTO dto = empleadoService.getEmpleadoById(id);
+        if(dto != null) {
+            return new ResponseEntity<>(dto, HttpStatus.OK);
         }
-        return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>("Empleado no encontrado", HttpStatus.BAD_REQUEST);
     }
     @PostMapping()
-    public ResponseEntity<Empleado> createEmpleado(@RequestBody Empleado empleado){
-        Empleado newEmpleado = empleadoService.createEmpleado(empleado);
+    public ResponseEntity<?> createEmpleado(@RequestBody EmpleadoDTO dto){
+        EmpleadoDTO newEmpleado = empleadoService.createEmpleado(dto);
         if(newEmpleado != null){
-        return new ResponseEntity<>(empleado, HttpStatus.OK);
+        return new ResponseEntity<>(newEmpleado, HttpStatus.OK);
         }
-        return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>("Error al crear empleado", HttpStatus.BAD_REQUEST);
     }
     @PutMapping("/{id}")
-    public ResponseEntity<Empleado> updateEmpleado(@PathVariable Long id, @RequestBody Empleado empleado){
-        Empleado updatedEmpleado = empleadoService.updateEmpleado(id, empleado);
+    public ResponseEntity<?> updateEmpleado(@PathVariable Long id, @RequestBody EmpleadoDTO dto){
+        EmpleadoDTO updatedEmpleado = empleadoService.updateEmpleado(id, dto);
         if(updatedEmpleado != null){
             return new ResponseEntity<>(updatedEmpleado, HttpStatus.OK);
         }
-        return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>("Empleado no encontrado", HttpStatus.BAD_REQUEST);
     }
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteEmpleado(@PathVariable Long id){
