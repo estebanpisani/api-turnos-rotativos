@@ -8,6 +8,7 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -36,6 +37,9 @@ public class Empleado {
     private String telefono;
     private LocalDate fechaAlta;
     private LocalDate fechaBaja;
+
+    @OneToMany(mappedBy = "empleado")
+    List<Jornada> jornadas;
 
     public Empleado() {
     }
