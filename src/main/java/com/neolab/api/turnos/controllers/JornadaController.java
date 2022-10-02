@@ -19,7 +19,7 @@ public class JornadaController {
 
     @GetMapping()
     public ResponseEntity<?> obtenerJornadas(){
-        List<JornadaDTO> dtos = jornadaService.getJornadas();
+        List<JornadaDTO> dtos = jornadaService.getAllJornadas();
         if(dtos!=null){
             return new ResponseEntity<>(dtos, HttpStatus.OK);
         }
