@@ -2,12 +2,13 @@ package com.neolab.api.turnos.mappers;
 
 import com.neolab.api.turnos.dto.EmpleadoDTO;
 import com.neolab.api.turnos.entity.Empleado;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-
+@Component
 public class EmpleadoMapper {
 
     public EmpleadoDTO entityToDTO(Empleado empleado){

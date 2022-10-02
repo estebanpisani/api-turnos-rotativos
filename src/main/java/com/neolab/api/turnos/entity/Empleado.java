@@ -8,6 +8,7 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -39,7 +40,7 @@ public class Empleado {
     private LocalDate fechaBaja;
 
     @OneToMany(mappedBy = "empleado")
-    List<Jornada> jornadas;
+    List<Jornada> jornadas = new ArrayList<>();
 
     public Empleado() {
     }

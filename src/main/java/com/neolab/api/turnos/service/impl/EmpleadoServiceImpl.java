@@ -78,7 +78,6 @@ public class EmpleadoServiceImpl implements EmpleadoService {
         }
         return null;
     }
-
     @Override
     public void deleteEmpleado(Long id) {
         Optional<Empleado> opt = empleadoRepository.findById(id);

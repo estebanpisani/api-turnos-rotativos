@@ -3,6 +3,7 @@ package com.neolab.api.turnos.mappers;
 import com.neolab.api.turnos.dto.JornadaDTO;
 import com.neolab.api.turnos.entity.Jornada;
 import com.neolab.api.turnos.enums.JornadaEnum;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -10,6 +11,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 public class JornadaMapper {
     public JornadaDTO entityToDTO(Jornada jornada){
         DateTimeFormatter formatterHour = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm");

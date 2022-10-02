@@ -33,6 +33,14 @@ public class JornadaController {
         }
         return new ResponseEntity<>("No hay jornadas laborales disponibles", HttpStatus.BAD_REQUEST);
     }
+    @GetMapping("/{id}/empleado")
+    public ResponseEntity<?> obtenerEmpleadoPorJornada(@PathVariable Long id){
+        String nombre = jornadaService.getEmpleadoByJornadaId(id);
+        if(nombre!=null){
+            return new ResponseEntity<>(nombre, HttpStatus.OK);
+        }
+        return new ResponseEntity<>("No hay empleado en esa jornada", HttpStatus.BAD_REQUEST);
+    }
 
     @PostMapping()
     public ResponseEntity<?> createJornada(@RequestBody JornadaDTO dto){
