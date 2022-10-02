@@ -26,24 +26,22 @@ EmpleadoRepository empleadoRepository;
     public boolean jornadaNormalValidator(Jornada jornada){
         //Verificar fecha/hora de entrada es anterior a hora de salida
         if(jornada.getHoraEntrada().isBefore(jornada.getHoraSalida())){
-            System.out.println("Hora de entrada es anterior a hora de salida");
-            //Obtengo valores de hora en formato LocalTime
+            //Obtengo valores de hora en formato LocalTime para compararlos
             LocalTime horaEntrada = LocalTime.of(jornada.getHoraEntrada().getHour(), jornada.getHoraEntrada().getMinute(), jornada.getHoraEntrada().getSecond());
             LocalTime horaSalida = LocalTime.of(jornada.getHoraSalida().getHour(), jornada.getHoraSalida().getMinute(), jornada.getHoraSalida().getSecond());
-            //Obtengo cantidad de horas de la jornada
+            //Se obtiene la cantidad de horas de la jornada
             long horasJornada = ChronoUnit.HOURS.between(horaEntrada, horaSalida);
-            //Verificar si no tiene menos de 6hs ni más de 8hs
+            //Se verifica si no tiene menos de 6hs ni más de 8hs
             if(horasJornada>=6&&horasJornada<=8){
                 System.out.println("Tiene entre 6hs y 8hs ("+horasJornada+"hs).");
                 //Se busca el empleado en la base de datos por su id
                 Optional<Empleado> opt = empleadoRepository.findById(jornada.getEmpleadoId());
                 if(opt.isPresent()){
                     Empleado empleado = opt.get();
-                // Verificar si el empleado tiene jornadas cargadas
+                // Se verifica si el empleado tiene jornadas cargadas
                     if(empleado.getJornadas().size()>0){
                     //Si tiene jornadas, verificar que sea la única jornada del día
                         if (empleado.getJornadas().stream().filter(item -> item.getFecha().isEqual(jornada.getFecha())).count()<1){
-                            System.out.println("Es la única jornada normal del día del empleado.");
                             //Obtener número de semana del año
                             TemporalField woy = WeekFields.of(Locale.getDefault()).weekOfWeekBasedYear();
                             int semanaJornadaNueva = jornada.getFecha().get(woy);
@@ -64,7 +62,6 @@ EmpleadoRepository empleadoRepository;
                                     return false;
                                 }
                             }else{
-                                System.out.println("Es la única jornada normal de la misma semana.");
                                 System.out.println("Jornada Creada");
                                 return true;
                             }
@@ -75,8 +72,8 @@ EmpleadoRepository empleadoRepository;
                         }
                     }
                     else{
-                        System.out.println("El empleado aún no tiene ninguna jornada.");
                         //Si no tiene ninguna jornada, se crea exitosamente.
+                        System.out.println("Jornada Creada.");
                         return true;
                     }
                 }else{
@@ -90,7 +87,7 @@ EmpleadoRepository empleadoRepository;
             }
         }
         else{
-            System.out.println("Hora de Entrada es posterior a hora de salida");
+            System.out.println("Fecha/Hora de entrada no puede serposterior a la fecha/hora de salida");
             return false;
         }
     }
