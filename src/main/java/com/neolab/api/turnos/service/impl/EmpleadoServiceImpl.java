@@ -29,7 +29,36 @@ public class EmpleadoServiceImpl implements EmpleadoService {
     }
 
     @Override
-    public EmpleadoDTO updateEmpleado(Long id, EmpleadoDTO empleado) {
+    public EmpleadoDTO updateEmpleado(Long id, EmpleadoDTO dto) {
+        // Se verifica si el empleado a modificar existe
+        Optional<Empleado> opt = empleadoRepository.findById(id);
+        if(opt.isPresent()){
+        // Se obtiene el empleado de la base de datos y se modifican sólo los datos del DTO que no son nulos.
+            Empleado empleado = opt.get();
+            Empleado newEmpleado = empleadoMapper.dtoToEntity(dto);
+
+            if(newEmpleado.getNombre() != null){
+                empleado.setNombre(newEmpleado.getNombre());}
+            if(newEmpleado.getApellido() != null){
+                empleado.setApellido(newEmpleado.getApellido());
+            }
+            if(newEmpleado.getEmail() != null){
+            empleado.setEmail(newEmpleado.getEmail());
+            }
+            if(newEmpleado.getTelefono() != null){
+                empleado.setTelefono(newEmpleado.getTelefono());
+            }
+            if(newEmpleado.getPassword() != null){
+                empleado.setPassword(newEmpleado.getPassword());
+            }
+            if(newEmpleado.getFechaDeNacimiento() != null){
+                empleado.setFechaDeNacimiento(newEmpleado.getFechaDeNacimiento());
+            }
+
+            EmpleadoDTO response = empleadoMapper.entityToDTO(empleadoRepository.save(empleado));
+            return response;
+        }
+        //En caso de no encontrarse el empleado, se devuelve null.
         return null;
     }
 
@@ -52,6 +81,9 @@ public class EmpleadoServiceImpl implements EmpleadoService {
 
     @Override
     public void deleteEmpleado(Long id) {
-
+        Optional<Empleado> opt = empleadoRepository.findById(id);
+        if(opt.isPresent()){
+            empleadoRepository.deleteById(id);
+        }
     }
 }
