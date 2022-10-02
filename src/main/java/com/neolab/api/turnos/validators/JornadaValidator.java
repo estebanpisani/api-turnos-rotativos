@@ -57,6 +57,7 @@ EmpleadoRepository empleadoRepository;
                                 }
                             //Verificar que la sumatoria de las horas de la jornada y el resto de la semana no supere las 48hs
                                 if(horasSemanales+horasJornada<=48){
+                                    System.out.println("Jornada Creada");
                                     return true;
                                 }else{
                                     System.out.println("No puede trabajar más de 48hs semanales.");
@@ -64,9 +65,9 @@ EmpleadoRepository empleadoRepository;
                                 }
                             }else{
                                 System.out.println("Es la única jornada normal de la misma semana.");
+                                System.out.println("Jornada Creada");
                                 return true;
                             }
-
                         }
                         else{
                             System.out.println("El empleado ya tiene una jornada normal este día");
@@ -84,7 +85,7 @@ EmpleadoRepository empleadoRepository;
                 }
             }
             else{
-                System.out.println("Tiene menos de 6hs: "+ChronoUnit.HOURS.between(horaEntrada, horaSalida));
+                System.out.println("No tiene entre 6 y 8hs: "+ChronoUnit.HOURS.between(horaEntrada, horaSalida));
                 return false;
             }
         }
