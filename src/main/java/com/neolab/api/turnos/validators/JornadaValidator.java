@@ -6,7 +6,6 @@ import com.neolab.api.turnos.repository.EmpleadoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalField;
 import java.time.temporal.WeekFields;
@@ -26,11 +25,9 @@ EmpleadoRepository empleadoRepository;
     public boolean jornadaNormalValidator(Jornada jornada){
         //Verificar fecha/hora de entrada es anterior a hora de salida
         if(jornada.getHoraEntrada().isBefore(jornada.getHoraSalida())){
-            //Se obtienen valores de hora en formato LocalTime para compararlos
-            LocalTime horaEntrada = LocalTime.of(jornada.getHoraEntrada().getHour(), jornada.getHoraEntrada().getMinute(), jornada.getHoraEntrada().getSecond());
-            LocalTime horaSalida = LocalTime.of(jornada.getHoraSalida().getHour(), jornada.getHoraSalida().getMinute(), jornada.getHoraSalida().getSecond());
             //Se obtiene la cantidad de horas de la jornada
-            long horasJornada = ChronoUnit.HOURS.between(horaEntrada, horaSalida);
+            long horasJornada = jornada.getHoraEntrada().until(jornada.getHoraSalida(), ChronoUnit.HOURS);
+            System.out.println("Horas de la jornada: "+horasJornada);
             //Se verifica si no tiene menos de 6hs ni más de 8hs
             if(horasJornada>=6&&horasJornada<=8){
                 //Se busca el empleado en la base de datos por su id
@@ -82,7 +79,7 @@ EmpleadoRepository empleadoRepository;
                 }
             }
             else{
-                System.out.println("No tiene entre 6 y 8hs: "+ChronoUnit.HOURS.between(horaEntrada, horaSalida));
+                System.out.println("No tiene entre 6 y 8hs: "+horasJornada);
                 return false;
             }
         }
