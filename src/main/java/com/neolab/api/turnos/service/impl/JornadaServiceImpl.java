@@ -27,23 +27,25 @@ public class JornadaServiceImpl implements JornadaService {
     @Override
     public JornadaDTO createJornada(JornadaDTO dto) {
         Jornada jornada = jornadaMapper.dtoToEntity(dto);
-        if(jornada.getTipo().equals(JornadaEnum.NORMAL)){
-            if(jornadaValidator.jornadaNormalValidator(jornada)) {
+        //Se verifica si la jornada tiene un formato válido
+        if(jornadaValidator.esJornadaValida(jornada)) {
+            if (jornada.getTipo().equals(JornadaEnum.NORMAL)) {
+                if (jornadaValidator.jornadaNormalValidator(jornada)) {
+                    Jornada newJornada = jornadaRepository.save(jornada);
+                    return jornadaMapper.entityToDTO(newJornada);
+                }
+            }
+            else if (jornada.getTipo().equals(JornadaEnum.EXTRA)) {
+                if (jornadaValidator.jornadaExtraValidator(jornada)) {
+                    Jornada newJornada = jornadaRepository.save(jornada);
+                    return jornadaMapper.entityToDTO(newJornada);
+                }
+            }
+            else if (jornada.getTipo().equals(JornadaEnum.DIA_LIBRE)) {
                 Jornada newJornada = jornadaRepository.save(jornada);
                 return jornadaMapper.entityToDTO(newJornada);
             }
         }
-        else if (jornada.getTipo().equals(JornadaEnum.EXTRA)) {
-            if(jornadaValidator.jornadaExtraValidator(jornada)){
-                Jornada newJornada = jornadaRepository.save(jornada);
-                return jornadaMapper.entityToDTO(newJornada);
-            }
-        }
-        else if (jornada.getTipo().equals(JornadaEnum.DIA_LIBRE)){
-            Jornada newJornada = jornadaRepository.save(jornada);
-            return jornadaMapper.entityToDTO(newJornada);
-        }
-
         return null;
     }
 
@@ -55,8 +57,7 @@ public class JornadaServiceImpl implements JornadaService {
     @Override
     public List<JornadaDTO> getAllJornadas() {
         List<Jornada> jornadas = jornadaRepository.findAll();
-        List<JornadaDTO> dtos = jornadaMapper.entityListToDTOList(jornadas);
-        return dtos;
+        return jornadaMapper.entityListToDTOList(jornadas);
     }
 
     @Override
@@ -78,8 +79,7 @@ public class JornadaServiceImpl implements JornadaService {
     public JornadaDTO getJornadaById(Long id) {
         Optional<Jornada> opt = jornadaRepository.findById(id);
         if(opt.isPresent()){
-            JornadaDTO response = jornadaMapper.entityToDTO(opt.get());
-            return response;
+            return jornadaMapper.entityToDTO(opt.get());
         }
         return null;
     }
