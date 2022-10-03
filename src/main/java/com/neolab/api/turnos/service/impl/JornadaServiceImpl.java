@@ -42,8 +42,10 @@ public class JornadaServiceImpl implements JornadaService {
                 }
             }
             else if (jornada.getTipo().equals(JornadaEnum.DIA_LIBRE)) {
-                Jornada newJornada = jornadaRepository.save(jornada);
-                return jornadaMapper.entityToDTO(newJornada);
+                if(jornadaValidator.diaLibreValidator(jornada)) {
+                    Jornada newJornada = jornadaRepository.save(jornada);
+                    return jornadaMapper.entityToDTO(newJornada);
+                }
             }
         }
         return null;

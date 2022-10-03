@@ -4,6 +4,7 @@ import com.neolab.api.turnos.entity.Empleado;
 import com.neolab.api.turnos.entity.Jornada;
 import com.neolab.api.turnos.enums.JornadaEnum;
 import com.neolab.api.turnos.repository.EmpleadoRepository;
+import com.neolab.api.turnos.repository.JornadaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -18,10 +19,26 @@ import java.util.stream.Collectors;
 public class JornadaValidator {
 @Autowired
 EmpleadoRepository empleadoRepository;
+@Autowired
+JornadaRepository jornadaRepository;
     //Validar jornada
     public boolean esJornadaValida(Jornada jornada){
         //Verifica si el ingreso es anterior a la salida y si el usuario referenciado existe en la base de datos.
             return jornada.getHoraEntrada().isBefore(jornada.getHoraSalida()) && empleadoRepository.existsById(jornada.getEmpleadoId());
+    }
+    public boolean horarioDisponible(Jornada jornada){
+        return jornadaRepository.findAll().stream().noneMatch(item ->
+                        item.getFecha().equals(jornada.getFecha()) &&
+                        (
+                            jornada.getHoraEntrada().isEqual(item.getHoraEntrada()) ||
+                            (
+                            jornada.getHoraEntrada().isAfter(item.getHoraEntrada()) &&
+                            jornada.getHoraEntrada().isBefore(item.getHoraSalida()) ||
+                            jornada.getHoraSalida().isAfter(item.getHoraEntrada()) &&
+                            jornada.getHoraSalida().isBefore(item.getHoraSalida())
+                            )
+                        )
+        );
     }
     public long obtenerHoras(Jornada jornada){
         return jornada.getHoraEntrada().until(jornada.getHoraSalida(), ChronoUnit.HOURS);
@@ -44,10 +61,10 @@ EmpleadoRepository empleadoRepository;
             for (Jornada item : jornadasMismaSemana) {
                 horasSemanales += this.obtenerHoras(item);
             }
-            return horasSemanales+obtenerHoras(jornada)>48;
+            return horasSemanales+obtenerHoras(jornada)<=48;
         }
         else {
-            return false;
+            return true;
         }
     }
     public boolean noSuperaHorasDiarias(Jornada jornada, Empleado empleado) {
@@ -62,7 +79,7 @@ EmpleadoRepository empleadoRepository;
         for (Jornada item: jornadasDelDia) {
             horasDelDia += this.obtenerHoras(item);
         }
-        return horasDelDia+obtenerHoras(jornada)>12;
+        return horasDelDia+obtenerHoras(jornada)<=12;
     }
     public boolean tieneDiaLibre(Jornada jornada, Empleado empleado){
         return empleado.getJornadas().stream().anyMatch(item -> item.getFecha().isEqual(jornada.getFecha()) && item.getTipo().equals(JornadaEnum.DIA_LIBRE));
@@ -117,16 +134,21 @@ EmpleadoRepository empleadoRepository;
             // Se verifica si el empleado tiene jornadas cargadas
             if (empleado.getJornadas().size() > 0) {
                 if (!tieneDiaLibre(jornada, empleado)) {
-                    if (noSuperaHorasSemanales(jornada, empleado)) {
-                        if (noSuperaHorasDiarias(jornada, empleado)) {
-                            System.out.println("Jornada Creada.");
-                            return true;
+                    if(this.horarioDisponible(jornada)) {
+                        if (noSuperaHorasSemanales(jornada, empleado)) {
+                            if (noSuperaHorasDiarias(jornada, empleado)) {
+                                System.out.println("Jornada Creada.");
+                                return true;
+                            } else {
+                                System.out.println("La jornada excede las 12hs diarias.");
+                                return false;
+                            }
                         } else {
-                            System.out.println("La jornada excede las 12hs diarias.");
+                            System.out.println("No puede trabajar más de 48hs semanales.");
                             return false;
                         }
-                    } else {
-                        System.out.println("No puede trabajar más de 48hs semanales.");
+                    }else{
+                        System.out.println("Ya hay una jornada en ese horario.");
                         return false;
                     }
                 } else {
