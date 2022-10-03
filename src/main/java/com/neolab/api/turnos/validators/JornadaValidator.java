@@ -159,12 +159,25 @@ EmpleadoRepository empleadoRepository;
     }
 
     public boolean diaLibreValidator(Jornada jornada){
+        //Se verifica si el formato es válido
         if(esJornadaValida(jornada)){
+            //Se verifica si el Día Libre tiene 24 hs
             if(obtenerHoras(jornada)==24){
                 Empleado empleado = empleadoRepository.findById(jornada.getEmpleadoId()).get();
                 // Se verifica si el empleado tiene jornadas cargadas
                 if(empleado.getJornadas().size()>0){
-                    return true;
+                    //Se verfica si el empleado tiene jornadas ese día
+                    if(empleado.getJornadas()
+                            .stream()
+                            .anyMatch(item -> item.getFecha().isEqual(jornada.getFecha()))){
+                        //No permite reemplazar jornadas laborales con dias libres.
+                        System.out.println("La fecha ingresada ya tiene una jornada laboral asignada.");
+                        return false;
+                    }
+                    else{
+                        System.out.println("Día Libre válido");
+                        return true;
+                    }
                 }
                 else{
                     System.out.println("Día Libre Válido.");

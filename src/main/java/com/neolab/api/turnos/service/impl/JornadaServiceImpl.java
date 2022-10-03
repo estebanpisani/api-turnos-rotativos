@@ -38,11 +38,12 @@ public class JornadaServiceImpl implements JornadaService {
                 Jornada newJornada = jornadaRepository.save(jornada);
                 return jornadaMapper.entityToDTO(newJornada);
             }
-            return null;
         }
         else if (jornada.getTipo().equals(JornadaEnum.DIA_LIBRE)){
-            return null;
+            Jornada newJornada = jornadaRepository.save(jornada);
+            return jornadaMapper.entityToDTO(newJornada);
         }
+
         return null;
     }
 
