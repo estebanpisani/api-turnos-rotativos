@@ -26,14 +26,13 @@ EmpleadoRepository empleadoRepository;
     public boolean jornadaNormalValidator(Jornada jornada){
         //Verificar fecha/hora de entrada es anterior a hora de salida
         if(jornada.getHoraEntrada().isBefore(jornada.getHoraSalida())){
-            //Obtengo valores de hora en formato LocalTime para compararlos
+            //Se obtienen valores de hora en formato LocalTime para compararlos
             LocalTime horaEntrada = LocalTime.of(jornada.getHoraEntrada().getHour(), jornada.getHoraEntrada().getMinute(), jornada.getHoraEntrada().getSecond());
             LocalTime horaSalida = LocalTime.of(jornada.getHoraSalida().getHour(), jornada.getHoraSalida().getMinute(), jornada.getHoraSalida().getSecond());
             //Se obtiene la cantidad de horas de la jornada
             long horasJornada = ChronoUnit.HOURS.between(horaEntrada, horaSalida);
             //Se verifica si no tiene menos de 6hs ni más de 8hs
             if(horasJornada>=6&&horasJornada<=8){
-                System.out.println("Tiene entre 6hs y 8hs ("+horasJornada+"hs).");
                 //Se busca el empleado en la base de datos por su id
                 Optional<Empleado> opt = empleadoRepository.findById(jornada.getEmpleadoId());
                 if(opt.isPresent()){
@@ -41,14 +40,15 @@ EmpleadoRepository empleadoRepository;
                 // Se verifica si el empleado tiene jornadas cargadas
                     if(empleado.getJornadas().size()>0){
                     //Si tiene jornadas, verificar que sea la única jornada del día
-                        if (empleado.getJornadas().stream().filter(item -> item.getFecha().isEqual(jornada.getFecha())).count()<1){
+
+                        if (empleado.getJornadas().stream().noneMatch(item -> item.getFecha().isEqual(jornada.getFecha()))){
                             //Obtener número de semana del año
-                            TemporalField woy = WeekFields.of(Locale.getDefault()).weekOfWeekBasedYear();
-                            int semanaJornadaNueva = jornada.getFecha().get(woy);
+                            TemporalField weekNumber = WeekFields.of(Locale.getDefault()).weekOfWeekBasedYear();
+                            int semanaJornadaNueva = jornada.getFecha().get(weekNumber);
                             //Filtrar jornadas por misma semana
-                            List<Jornada> jornadasMismaSemana = empleado.getJornadas().stream().filter(item-> item.getFecha().get(woy) == semanaJornadaNueva).collect(Collectors.toList());
+                            List<Jornada> jornadasMismaSemana = empleado.getJornadas().stream().filter(item-> item.getFecha().get(weekNumber) == semanaJornadaNueva).collect(Collectors.toList());
                             //Filtrar cantidad de horas
-                            if(jornadasMismaSemana !=null && jornadasMismaSemana.size()>0){
+                            if(jornadasMismaSemana.size()>0){
                                 long horasSemanales = 0;
                                 for (Jornada item:jornadasMismaSemana) {
                                     horasSemanales += ChronoUnit.HOURS.between(item.getHoraEntrada(), item.getHoraSalida());
@@ -87,7 +87,7 @@ EmpleadoRepository empleadoRepository;
             }
         }
         else{
-            System.out.println("Fecha/Hora de entrada no puede serposterior a la fecha/hora de salida");
+            System.out.println("Fecha/Hora de entrada no puede ser posterior a la fecha/hora de salida");
             return false;
         }
     }

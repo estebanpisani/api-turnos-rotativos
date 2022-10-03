@@ -7,7 +7,7 @@ public interface JornadaService {
     JornadaDTO createJornada(JornadaDTO dto);
     JornadaDTO updateJornada(Long id, JornadaDTO dto);
     List<JornadaDTO> getAllJornadas();
-    List<JornadaDTO> getJornadasByEmpleado(Long id);
+    List<JornadaDTO> getJornadasByEmpleado(Long id, String tipo);
     JornadaDTO getJornadaById(Long id);
     void deleteJornada(Long id);
 }

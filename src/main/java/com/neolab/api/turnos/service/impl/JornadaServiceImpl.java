@@ -1,10 +1,7 @@
 package com.neolab.api.turnos.service.impl;
 
-import com.neolab.api.turnos.dto.EmpleadoDTO;
 import com.neolab.api.turnos.dto.JornadaDTO;
-import com.neolab.api.turnos.entity.Empleado;
 import com.neolab.api.turnos.entity.Jornada;
-import com.neolab.api.turnos.enums.JornadaEnum;
 import com.neolab.api.turnos.mappers.JornadaMapper;
 import com.neolab.api.turnos.repository.JornadaRepository;
 import com.neolab.api.turnos.service.JornadaService;
@@ -12,13 +9,11 @@ import com.neolab.api.turnos.validators.JornadaValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
 @Service
 public class JornadaServiceImpl implements JornadaService {
 
@@ -52,9 +47,17 @@ public class JornadaServiceImpl implements JornadaService {
     }
 
     @Override
-    public List<JornadaDTO> getJornadasByEmpleado(Long id) {
+    public List<JornadaDTO> getJornadasByEmpleado(Long id, String tipo) {
         List<Jornada> jornadas = jornadaRepository.findByEmpleadoId(id);
-        List<JornadaDTO> dtos = jornadaMapper.entityListToDTOList(jornadas);
+        List<JornadaDTO> dtos = new ArrayList<>();
+        if(tipo != null){
+            List<Jornada> jornadasFiltradas = jornadas.stream().filter(item-> item.getTipo().toString().equalsIgnoreCase(tipo.trim().replace(" ","_"))).collect(Collectors.toList());
+            if(jornadasFiltradas.size()>0){
+            dtos = jornadaMapper.entityListToDTOList(jornadasFiltradas);
+            }
+            return dtos;
+        }
+        dtos = jornadaMapper.entityListToDTOList(jornadas);
         return dtos;
     }
 
