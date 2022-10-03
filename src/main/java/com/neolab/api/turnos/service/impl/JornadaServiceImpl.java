@@ -2,6 +2,7 @@ package com.neolab.api.turnos.service.impl;
 
 import com.neolab.api.turnos.dto.JornadaDTO;
 import com.neolab.api.turnos.entity.Jornada;
+import com.neolab.api.turnos.enums.JornadaEnum;
 import com.neolab.api.turnos.mappers.JornadaMapper;
 import com.neolab.api.turnos.repository.JornadaRepository;
 import com.neolab.api.turnos.service.JornadaService;
@@ -26,10 +27,21 @@ public class JornadaServiceImpl implements JornadaService {
     @Override
     public JornadaDTO createJornada(JornadaDTO dto) {
         Jornada jornada = jornadaMapper.dtoToEntity(dto);
-        if(jornadaValidator.jornadaNormalValidator(jornada)){
-        Jornada newJornada = jornadaRepository.save(jornada);
-        JornadaDTO response = jornadaMapper.entityToDTO(newJornada);
-        return response;
+        if(jornada.getTipo().equals(JornadaEnum.NORMAL)){
+            if(jornadaValidator.jornadaNormalValidator(jornada)) {
+                Jornada newJornada = jornadaRepository.save(jornada);
+                return jornadaMapper.entityToDTO(newJornada);
+            }
+        }
+        else if (jornada.getTipo().equals(JornadaEnum.EXTRA)) {
+            if(jornadaValidator.jornadaExtraValidator(jornada)){
+                Jornada newJornada = jornadaRepository.save(jornada);
+                return jornadaMapper.entityToDTO(newJornada);
+            }
+            return null;
+        }
+        else if (jornada.getTipo().equals(JornadaEnum.DIA_LIBRE)){
+            return null;
         }
         return null;
     }
