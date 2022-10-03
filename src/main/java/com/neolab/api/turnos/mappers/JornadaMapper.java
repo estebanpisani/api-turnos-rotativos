@@ -18,6 +18,7 @@ public class JornadaMapper {
         DateTimeFormatter formatterDate = DateTimeFormatter.ofPattern("yyyy/MM/dd");
         JornadaDTO dto = new JornadaDTO();
 
+        dto.setId(jornada.getId());
         dto.setEmpleadoId(jornada.getEmpleadoId());
         dto.setFecha(jornada.getFecha().format(formatterDate));
         dto.setHoraEntrada(jornada.getHoraEntrada().format(formatterHour));
