@@ -8,6 +8,7 @@ import com.neolab.api.turnos.repository.JornadaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalField;
 import java.time.temporal.WeekFields;
@@ -22,12 +23,23 @@ EmpleadoRepository empleadoRepository;
 @Autowired
 JornadaRepository jornadaRepository;
     //Validar jornada
-    public boolean esJornadaValida(Jornada jornada){
-        //Verifica si el ingreso es anterior a la salida y si el usuario referenciado existe en la base de datos.
-            return jornada.getHoraEntrada().isBefore(jornada.getHoraSalida()) && empleadoRepository.existsById(jornada.getEmpleadoId());
+    public boolean horarioValido(Jornada jornada){
+        //Verifica si el ingreso es anterior a la salida y si la fecha de ingreso coincide con la fecha.
+            return jornada.getHoraEntrada().isBefore(jornada.getHoraSalida())
+                    && LocalDate.of(jornada.getHoraEntrada().getYear(),jornada.getHoraEntrada().getMonth(), jornada.getHoraEntrada().getDayOfMonth()).isEqual(jornada.getFecha());
+    }
+    public boolean usuarioExiste(Jornada jornada){
+        //Verifica si el usuario referenciado existe en la base de datos.
+        return empleadoRepository.existsById(jornada.getEmpleadoId());
     }
     public boolean horarioDisponible(Jornada jornada){
-        return jornadaRepository.findAll().stream().noneMatch(item ->
+        if(jornada.getTipo().equals(JornadaEnum.NORMAL)){
+            return jornadaRepository.findAll().stream()
+                    .noneMatch(item -> item.getTipo().equals(JornadaEnum.NORMAL) &&
+                    item.getFecha().equals(jornada.getFecha()));
+        }
+        return jornadaRepository.findAll().stream()
+                .noneMatch(item ->
                         item.getFecha().equals(jornada.getFecha()) &&
                         (
                             jornada.getHoraEntrada().isEqual(item.getHoraEntrada()) ||
@@ -43,10 +55,12 @@ JornadaRepository jornadaRepository;
     public long obtenerHoras(Jornada jornada){
         return jornada.getHoraEntrada().until(jornada.getHoraSalida(), ChronoUnit.HOURS);
     }
+        //  Cada empleado no puede trabajar más de 48 horas semanales, ni menos de 30.
     public boolean noSuperaHorasSemanales(Jornada jornada, Empleado empleado) {
+        //Se obtiene el número de la semana del año para comparar.
         TemporalField weekNumber = WeekFields.of(Locale.getDefault()).weekOfWeekBasedYear();
         int semanaJornadaNueva = jornada.getFecha().get(weekNumber);
-        //Filtrar jornadas por misma semana
+        //Se filtran jornadas existentes en la misma semana
         List<Jornada> jornadasMismaSemana = empleado
                 .getJornadas()
                 .stream()
@@ -55,18 +69,21 @@ JornadaRepository jornadaRepository;
                                 && (item.getTipo().equals(JornadaEnum.NORMAL) || item.getTipo().equals(JornadaEnum.EXTRA))
                 )
                 .collect(Collectors.toList());
-        //Filtrar cantidad de horas
+        //Se otienen las horas semanales
         if(jornadasMismaSemana.size()>0) {
             long horasSemanales = 0;
             for (Jornada item : jornadasMismaSemana) {
                 horasSemanales += this.obtenerHoras(item);
             }
+            //Se evalúa si la suma entre las horas semanales y la jornada nueva no superan las 48hs
             return horasSemanales+obtenerHoras(jornada)<=48;
         }
         else {
             return true;
         }
     }
+    //  Para cada fecha, un empleado (siempre que no esté de vacaciones o haya pedido día libre)
+    //  podrá cargar un turno normal, un turno extra o una combinación de ambos que no supere las 12 horas.
     public boolean noSuperaHorasDiarias(Jornada jornada, Empleado empleado) {
         long horasDelDia = 0;
         List<Jornada> jornadasDelDia = empleado.getJornadas()
@@ -81,11 +98,12 @@ JornadaRepository jornadaRepository;
         }
         return horasDelDia+obtenerHoras(jornada)<=12;
     }
+    //  Si un empleado cargó “Dia libre” no podrá trabajar durante las 24 horas correspondientes a ese día.
     public boolean tieneDiaLibre(Jornada jornada, Empleado empleado){
         return empleado.getJornadas().stream().anyMatch(item -> item.getFecha().isEqual(jornada.getFecha()) && item.getTipo().equals(JornadaEnum.DIA_LIBRE));
     }
 
-    //Verificar según tipo
+    //Validar jornada según tipo
     //Normal:
     public boolean jornadaNormalValidator(Jornada jornada){
         //Se verifica si no tiene menos de 6hs ni más de 8hs
@@ -95,19 +113,24 @@ JornadaRepository jornadaRepository;
                 if(empleado.getJornadas().size()>0){
                     //Se verifica si no tiene el día libre
                     if(!tieneDiaLibre(jornada, empleado)) {
-                    //Se verifica si la jornada no supera las horas semanales.
-                        if(noSuperaHorasSemanales(jornada, empleado)) {
+                    //Se verifica si el día está disponible
+                        if(horarioDisponible(jornada)) {
+                            //Se verifica si la jornada no supera las horas semanales.
+                            if (noSuperaHorasSemanales(jornada, empleado)) {
                                 //Se verifica si supera las horas diarias máximas
-                            if (noSuperaHorasDiarias(jornada, empleado)) {
-                                System.out.println("Jornada Creada.");
-                                return true;
+                                if (noSuperaHorasDiarias(jornada, empleado)) {
+                                    System.out.println("Jornada Creada.");
+                                    return true;
+                                } else {
+                                    System.out.println("La jornada excede las 12hs diarias.");
+                                    return false;
+                                }
                             } else {
-                                System.out.println("La jornada excede las 12hs diarias.");
+                                System.out.println("No puede trabajar más de 48hs semanales.");
                                 return false;
                             }
-                        }
-                        else{
-                            System.out.println("No puede trabajar más de 48hs semanales.");
+                        }else{
+                            System.out.println("El horario ya está ocupado con otra jornada");
                             return false;
                         }
                     }
@@ -166,42 +189,31 @@ JornadaRepository jornadaRepository;
             return false;
         }
     }
-
+    //Día Libre
     public boolean diaLibreValidator(Jornada jornada){
-        //Se verifica si el Día Libre tiene 24 hs
-        if(obtenerHoras(jornada)==24){
-            Empleado empleado = empleadoRepository.findById(jornada.getEmpleadoId()).get();
-            // Se verifica si el empleado tiene jornadas cargadas
-            if(empleado.getJornadas().size()>0){
-                //Se verfica si el empleado tiene jornadas ese día
-                if(empleado.getJornadas()
-                        .stream()
-                        .anyMatch(item -> item.getFecha().isEqual(jornada.getFecha()))){
-                    //No permite reemplazar jornadas laborales con dias libres.
-                    System.out.println("La fecha ingresada ya tiene una jornada laboral asignada.");
-                    return false;
-                }
-                else{
-                    System.out.println("Día Libre válido");
-                    return true;
-                }
+        Empleado empleado = empleadoRepository.findById(jornada.getEmpleadoId()).get();
+        // Se verifica si el empleado tiene jornadas cargadas
+        if(empleado.getJornadas().size()>0){
+            //Se verifica si el empleado tiene jornadas ese día
+            if(empleado.getJornadas()
+                    .stream()
+                    .anyMatch(item -> item.getFecha().isEqual(jornada.getFecha()))){
+                //No permite reemplazar jornadas laborales con dias libres.
+                System.out.println("La fecha ingresada ya tiene una jornada laboral asignada.");
+                return false;
             }
             else{
-                System.out.println("Día Libre Válido.");
+                System.out.println("Día Libre válido");
                 return true;
             }
         }
         else{
-            System.out.println("El Día Libre debe tener 24hs.");
-            return false;
+            System.out.println("Día Libre Válido.");
+            return true;
         }
     }
 
-//  Cada empleado no puede trabajar más de 48 horas semanales, ni menos de 30.
-//  Las horas de un turno normal pueden variar entre 6 y 8, y las de un turno extra entre 2 y 6.
-//  Para cada fecha, un empleado (siempre que no esté de vacaciones o haya pedido día libre)
-//  podrá cargar un turno normal, un turno extra o una combinación de ambos que no supere las 12 horas.
+//TODO
 //  Por cada turno no puede haber más que 2 empleados.
-//  Si un empleado cargó “Dia libre” no podrá trabajar durante las 24 horas correspondientes a ese día.
 //  En la semana el empleado podrá tener hasta 2 días libres.
 }

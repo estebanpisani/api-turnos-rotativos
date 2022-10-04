@@ -10,6 +10,8 @@ import com.neolab.api.turnos.validators.JornadaValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -27,8 +29,17 @@ public class JornadaServiceImpl implements JornadaService {
     @Override
     public JornadaDTO createJornada(JornadaDTO dto) {
         Jornada jornada = jornadaMapper.dtoToEntity(dto);
-        //Se verifica si la jornada tiene un formato válido
-        if(jornadaValidator.esJornadaValida(jornada)) {
+        if (jornada.getTipo().equals(JornadaEnum.DIA_LIBRE)) {
+        //Si es Día Libre se le setea el horario de entrada y salida para que siempre sea de 24hs
+            jornada.setHoraEntrada(LocalDateTime.of(jornada.getFecha(), LocalTime.of(00,00)));
+            jornada.setHoraSalida(LocalDateTime.of(jornada.getFecha(), LocalTime.of(23,59)));
+            if(jornadaValidator.usuarioExiste(jornada) && jornadaValidator.diaLibreValidator(jornada)) {
+                Jornada newJornada = jornadaRepository.save(jornada);
+                return jornadaMapper.entityToDTO(newJornada);
+            }
+        }
+        else if(jornadaValidator.usuarioExiste(jornada) && jornadaValidator.horarioValido(jornada)) {
+        //Si es jornada normal o extra, se verifica si la jornada tiene un formato válido
             if (jornada.getTipo().equals(JornadaEnum.NORMAL)) {
                 if (jornadaValidator.jornadaNormalValidator(jornada)) {
                     Jornada newJornada = jornadaRepository.save(jornada);
@@ -37,12 +48,6 @@ public class JornadaServiceImpl implements JornadaService {
             }
             else if (jornada.getTipo().equals(JornadaEnum.EXTRA)) {
                 if (jornadaValidator.jornadaExtraValidator(jornada)) {
-                    Jornada newJornada = jornadaRepository.save(jornada);
-                    return jornadaMapper.entityToDTO(newJornada);
-                }
-            }
-            else if (jornada.getTipo().equals(JornadaEnum.DIA_LIBRE)) {
-                if(jornadaValidator.diaLibreValidator(jornada)) {
                     Jornada newJornada = jornadaRepository.save(jornada);
                     return jornadaMapper.entityToDTO(newJornada);
                 }
