@@ -32,19 +32,25 @@ public class JornadaMapper {
         DateTimeFormatter formatterDate = DateTimeFormatter.ofPattern("yyyy/MM/dd");
         Jornada jornada = new Jornada();
 
-        LocalDate fecha = LocalDate.parse(dto.getFecha(), formatterDate );
-        LocalDateTime horaEntrada = LocalDateTime.parse(dto.getHoraEntrada(), formatterHour);
-        LocalDateTime horaSalida = LocalDateTime.parse(dto.getHoraSalida(), formatterHour);
-
         jornada.setEmpleadoId(dto.getEmpleadoId());
+
+        LocalDate fecha = LocalDate.parse(dto.getFecha(), formatterDate );
         jornada.setFecha(fecha);
-        jornada.setHoraEntrada(horaEntrada);
-        jornada.setHoraSalida(horaSalida);
+
+        if(dto.getHoraEntrada()!=null && !dto.getHoraEntrada().isEmpty()){
+            LocalDateTime horaEntrada = LocalDateTime.parse(dto.getHoraEntrada(), formatterHour);
+            jornada.setHoraEntrada(horaEntrada);
+        }
+        if(dto.getHoraSalida()!=null && !dto.getHoraSalida().isEmpty()) {
+            LocalDateTime horaSalida = LocalDateTime.parse(dto.getHoraSalida(), formatterHour);
+            jornada.setHoraSalida(horaSalida);
+        }
+
         if(dto.getTipo().toUpperCase().trim().equals(JornadaEnum.NORMAL.toString())){
             jornada.setTipo(JornadaEnum.NORMAL);
         } else if (dto.getTipo().toUpperCase().trim().equals(JornadaEnum.EXTRA.toString())){
             jornada.setTipo(JornadaEnum.EXTRA);
-        } else if (dto.getTipo().toUpperCase().trim().equals(JornadaEnum.DIA_LIBRE.toString())){
+        } else if (dto.getTipo().toUpperCase().trim().replace(" ", "_").equals(JornadaEnum.DIA_LIBRE.toString())){
             jornada.setTipo(JornadaEnum.DIA_LIBRE);
         }
         return jornada;
