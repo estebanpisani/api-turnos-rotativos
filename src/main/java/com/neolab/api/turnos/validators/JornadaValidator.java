@@ -100,10 +100,25 @@ JornadaRepository jornadaRepository;
     }
     //  Si un empleado cargó “Dia libre” no podrá trabajar durante las 24 horas correspondientes a ese día.
     public boolean tieneDiaLibre(Jornada jornada, Empleado empleado){
-        return empleado.getJornadas().stream().anyMatch(item -> item.getFecha().isEqual(jornada.getFecha()) && item.getTipo().equals(JornadaEnum.DIA_LIBRE));
+        return empleado.getJornadas().stream().anyMatch(item -> item.getFecha().isEqual(jornada.getFecha()) && (item.getTipo().equals(JornadaEnum.DIA_LIBRE)));
+    }
+    public boolean estaDeVacaciones(Jornada jornada, Empleado empleado){
+        return empleado.getJornadas().stream()
+                .anyMatch(item ->
+                        item.getTipo().equals(JornadaEnum.VACACIONES) &&
+                                (
+                                        jornada.getFecha().isEqual(item.getHoraEntrada().toLocalDate()) ||
+                                                (
+                                                        jornada.getFecha().isAfter(item.getHoraEntrada().toLocalDate()) &&
+                                                        jornada.getFecha().isBefore(item.getHoraSalida().toLocalDate())
+                                                ) ||
+                                                jornada.getFecha().isEqual(item.getHoraSalida().toLocalDate())
+                                )
+                );
+
     }
     //  En la semana el empleado podrá tener hasta 2 días libres.
-    public boolean tieneDiasLibresDisponibles(Jornada jornada,Empleado empleado){
+    public boolean tieneDiasLibresDisponibles(Jornada jornada,Empleado empleado, int maximo){
         //Se obtiene el número de la semana del año para comparar.
         TemporalField weekNumber = WeekFields.of(Locale.getDefault()).weekOfWeekBasedYear();
         //Se filtran días libres en la misma semana
@@ -113,7 +128,17 @@ JornadaRepository jornadaRepository;
                         item.getFecha().get(weekNumber) == jornada.getFecha().get(weekNumber)
                                 && item.getTipo().equals(JornadaEnum.DIA_LIBRE
                 ))
-                .count()<2;
+                .count()<maximo;
+    }
+    public boolean tieneVacacionesDisponibles(Jornada jornada,Empleado empleado, int maximo){
+        //Se filtran los días de vacaciones en el mismo año
+        return empleado.getJornadas()
+                .stream()
+                .filter(item->
+                        item.getFecha().getYear() == jornada.getFecha().getYear()
+                                && item.getTipo().equals(JornadaEnum.VACACIONES
+                        ))
+                .count()<maximo;
     }
 
     //Validar jornada según tipo
@@ -124,31 +149,36 @@ JornadaRepository jornadaRepository;
             Empleado empleado = empleadoRepository.findById(jornada.getEmpleadoId()).get();
             // Se verifica si el empleado tiene jornadas cargadas
                 if(empleado.getJornadas().size()>0){
-                    //Se verifica si no tiene el día libre
-                    if(!tieneDiaLibre(jornada, empleado)) {
-                    //Se verifica si el día está disponible
-                        if(horarioDisponible(jornada)) {
-                            //Se verifica si la jornada no supera las horas semanales.
-                            if (noSuperaHorasSemanales(jornada, empleado)) {
-                                //Se verifica si supera las horas diarias máximas
-                                if (noSuperaHorasDiarias(jornada, empleado)) {
-                                    System.out.println("Jornada Creada.");
-                                    return true;
+                    if(!estaDeVacaciones(jornada, empleado)) {
+                        //Se verifica si no tiene el día libre
+                        if (!tieneDiaLibre(jornada, empleado) && !estaDeVacaciones(jornada, empleado)) {
+                            //Se verifica si el día está disponible
+                            if (horarioDisponible(jornada)) {
+                                //Se verifica si la jornada no supera las horas semanales.
+                                if (noSuperaHorasSemanales(jornada, empleado)) {
+                                    //Se verifica si supera las horas diarias máximas
+                                    if (noSuperaHorasDiarias(jornada, empleado)) {
+                                        System.out.println("Jornada Creada.");
+                                        return true;
+                                    } else {
+                                        System.out.println("La jornada excede las 12hs diarias.");
+                                        return false;
+                                    }
                                 } else {
-                                    System.out.println("La jornada excede las 12hs diarias.");
+                                    System.out.println("No puede trabajar más de 48hs semanales.");
                                     return false;
                                 }
                             } else {
-                                System.out.println("No puede trabajar más de 48hs semanales.");
+                                System.out.println("El horario ya está ocupado con otra jornada");
                                 return false;
                             }
-                        }else{
-                            System.out.println("El horario ya está ocupado con otra jornada");
+                        } else {
+                            System.out.println("El empleado tiene el día libre");
                             return false;
                         }
                     }
-                    else{
-                        System.out.println("El empleado tiene el día libre");
+                    else {
+                        System.out.println("El empleado está de vacaciones en esa fecha.");
                         return false;
                     }
                 }
@@ -169,26 +199,32 @@ JornadaRepository jornadaRepository;
             Empleado empleado = empleadoRepository.findById(jornada.getEmpleadoId()).get();
             // Se verifica si el empleado tiene jornadas cargadas
             if (empleado.getJornadas().size() > 0) {
-                if (!tieneDiaLibre(jornada, empleado)) {
-                    if(this.horarioDisponible(jornada)) {
-                        if (noSuperaHorasSemanales(jornada, empleado)) {
-                            if (noSuperaHorasDiarias(jornada, empleado)) {
-                                System.out.println("Jornada Creada.");
-                                return true;
+                if(!estaDeVacaciones(jornada, empleado)) {
+                    if (!tieneDiaLibre(jornada, empleado)) {
+                        if (this.horarioDisponible(jornada)) {
+                            if (noSuperaHorasSemanales(jornada, empleado)) {
+                                if (noSuperaHorasDiarias(jornada, empleado)) {
+                                    System.out.println("Jornada Creada.");
+                                    return true;
+                                } else {
+                                    System.out.println("La jornada excede las 12hs diarias.");
+                                    return false;
+                                }
                             } else {
-                                System.out.println("La jornada excede las 12hs diarias.");
+                                System.out.println("No puede trabajar más de 48hs semanales.");
                                 return false;
                             }
                         } else {
-                            System.out.println("No puede trabajar más de 48hs semanales.");
+                            System.out.println("Ya hay una jornada en ese horario.");
                             return false;
                         }
-                    }else{
-                        System.out.println("Ya hay una jornada en ese horario.");
+                    } else {
+                        System.out.println("El empleado tiene el día libre");
                         return false;
                     }
-                } else {
-                    System.out.println("El empleado tiene el día libre");
+                }
+                else{
+                    System.out.println("El empleado está de vacaciones en esa fecha.");
                     return false;
                 }
             } else {
@@ -207,22 +243,28 @@ JornadaRepository jornadaRepository;
         Empleado empleado = empleadoRepository.findById(jornada.getEmpleadoId()).get();
         // Se verifica si el empleado tiene jornadas cargadas
         if(empleado.getJornadas().size()>0){
-            //Se verificar si tiene días libres disponibles esa semana
-            if(tieneDiasLibresDisponibles(jornada, empleado)) {
-                //Se verifica si el empleado tiene jornadas ese día
-                if (empleado.getJornadas()
-                        .stream()
-                        .anyMatch(item -> item.getFecha().isEqual(jornada.getFecha()))) {
-                    //No permite reemplazar jornadas laborales con dias libres.
-                    System.out.println("La fecha ingresada ya tiene una jornada laboral asignada.");
-                    return false;
+            //Se verifica si no está de vacaciones
+            if(!estaDeVacaciones(jornada, empleado)) {
+                //Se verificar si tiene días libres disponibles esa semana
+                if (tieneDiasLibresDisponibles(jornada, empleado, 2)) {
+                    //Se verifica si el empleado tiene jornadas ese día
+                    if (empleado.getJornadas()
+                            .stream()
+                            .anyMatch(item -> item.getFecha().isEqual(jornada.getFecha()))) {
+                        //No permite reemplazar jornadas laborales con dias libres.
+                        System.out.println("La fecha ingresada ya tiene una jornada laboral asignada.");
+                        return false;
+                    } else {
+                        System.out.println("Día Libre válido");
+                        return true;
+                    }
                 } else {
-                    System.out.println("Día Libre válido");
-                    return true;
+                    System.out.println("No tiene días libres disponibles para esa semana.");
+                    return false;
                 }
             }
-            else{
-                System.out.println("No tiene días lires disponibles para esa semana.");
+            else {
+                System.out.println("El empleado está de vacaciones en esa fecha.");
                 return false;
             }
         }
@@ -230,6 +272,10 @@ JornadaRepository jornadaRepository;
             System.out.println("Día Libre Válido.");
             return true;
         }
+    }
+    //TODO Vacaciones
+    public boolean vacacionesValidator(Jornada jornada){
+            return true;
     }
 
 //TODO

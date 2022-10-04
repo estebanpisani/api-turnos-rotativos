@@ -19,7 +19,6 @@ import java.util.stream.Collectors;
 
 @Service
 public class JornadaServiceImpl implements JornadaService {
-
     @Autowired
     JornadaRepository jornadaRepository;
     @Autowired
@@ -28,12 +27,17 @@ public class JornadaServiceImpl implements JornadaService {
     JornadaValidator jornadaValidator;
     @Override
     public JornadaDTO createJornada(JornadaDTO dto) {
+        //Se crea una entidad con los datos que llegan desde el DTO.
         Jornada jornada = jornadaMapper.dtoToEntity(dto);
+        //Se validan los datos según el tipo de jornada.
         if (jornada.getTipo().equals(JornadaEnum.DIA_LIBRE)) {
-        //Si es Día Libre se le setea el horario de entrada y salida para que siempre sea de 24hs
-            jornada.setHoraEntrada(LocalDateTime.of(jornada.getFecha(), LocalTime.of(00,00)));
-            jornada.setHoraSalida(LocalDateTime.of(jornada.getFecha(), LocalTime.of(23,59)));
             if(jornadaValidator.usuarioExiste(jornada) && jornadaValidator.diaLibreValidator(jornada)) {
+                Jornada newJornada = jornadaRepository.save(jornada);
+                return jornadaMapper.entityToDTO(newJornada);
+            }
+        }
+        if(jornada.getTipo().equals(JornadaEnum.VACACIONES)){
+            if(jornadaValidator.usuarioExiste(jornada) && jornadaValidator.horarioValido(jornada)) {
                 Jornada newJornada = jornadaRepository.save(jornada);
                 return jornadaMapper.entityToDTO(newJornada);
             }

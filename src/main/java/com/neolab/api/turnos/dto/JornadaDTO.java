@@ -24,12 +24,4 @@ public class JornadaDTO {
         this.tipo = tipo;
         this.empleadoId = empleadoId;
     }
-//    public JornadaDTO(Long id,String fecha, String tipo, Long empleadoId) {
-//        this.id = id;
-//        this.fecha = fecha;
-//        this.horaEntrada = fecha+" 0:00";
-//        this.horaSalida = fecha+" 23:59";
-//        this.tipo = tipo;
-//        this.empleadoId = empleadoId;
-//    }
 }
