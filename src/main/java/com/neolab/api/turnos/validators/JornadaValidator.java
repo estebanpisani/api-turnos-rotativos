@@ -102,6 +102,19 @@ JornadaRepository jornadaRepository;
     public boolean tieneDiaLibre(Jornada jornada, Empleado empleado){
         return empleado.getJornadas().stream().anyMatch(item -> item.getFecha().isEqual(jornada.getFecha()) && item.getTipo().equals(JornadaEnum.DIA_LIBRE));
     }
+    //  En la semana el empleado podrá tener hasta 2 días libres.
+    public boolean tieneDiasLibresDisponibles(Jornada jornada,Empleado empleado){
+        //Se obtiene el número de la semana del año para comparar.
+        TemporalField weekNumber = WeekFields.of(Locale.getDefault()).weekOfWeekBasedYear();
+        //Se filtran días libres en la misma semana
+        return empleado.getJornadas()
+                .stream()
+                .filter(item->
+                        item.getFecha().get(weekNumber) == jornada.getFecha().get(weekNumber)
+                                && item.getTipo().equals(JornadaEnum.DIA_LIBRE
+                ))
+                .count()<2;
+    }
 
     //Validar jornada según tipo
     //Normal:
@@ -194,17 +207,23 @@ JornadaRepository jornadaRepository;
         Empleado empleado = empleadoRepository.findById(jornada.getEmpleadoId()).get();
         // Se verifica si el empleado tiene jornadas cargadas
         if(empleado.getJornadas().size()>0){
-            //Se verifica si el empleado tiene jornadas ese día
-            if(empleado.getJornadas()
-                    .stream()
-                    .anyMatch(item -> item.getFecha().isEqual(jornada.getFecha()))){
-                //No permite reemplazar jornadas laborales con dias libres.
-                System.out.println("La fecha ingresada ya tiene una jornada laboral asignada.");
-                return false;
+            //Se verificar si tiene días libres disponibles esa semana
+            if(tieneDiasLibresDisponibles(jornada, empleado)) {
+                //Se verifica si el empleado tiene jornadas ese día
+                if (empleado.getJornadas()
+                        .stream()
+                        .anyMatch(item -> item.getFecha().isEqual(jornada.getFecha()))) {
+                    //No permite reemplazar jornadas laborales con dias libres.
+                    System.out.println("La fecha ingresada ya tiene una jornada laboral asignada.");
+                    return false;
+                } else {
+                    System.out.println("Día Libre válido");
+                    return true;
+                }
             }
             else{
-                System.out.println("Día Libre válido");
-                return true;
+                System.out.println("No tiene días lires disponibles para esa semana.");
+                return false;
             }
         }
         else{
@@ -215,5 +234,4 @@ JornadaRepository jornadaRepository;
 
 //TODO
 //  Por cada turno no puede haber más que 2 empleados.
-//  En la semana el empleado podrá tener hasta 2 días libres.
 }
