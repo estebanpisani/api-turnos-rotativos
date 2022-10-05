@@ -10,8 +10,6 @@ import com.neolab.api.turnos.validators.JornadaValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -62,7 +60,48 @@ public class JornadaServiceImpl implements JornadaService {
 
     @Override
     public JornadaDTO updateJornada(Long id, JornadaDTO dto) {
-        return null;
+        //Se busca la entidad en la base de datos por su id.
+        Optional<Jornada> opt = jornadaRepository.findById(id);
+        if(opt.isPresent()){
+            // Se obtiene la jornada de la base de datos y se modifican sólo los datos del DTO que no son nulos y distintos.
+            Jornada jornadaDB = opt.get();
+            Jornada jornadaUpd = jornadaMapper.dtoToEntity(dto);
+
+            if(jornadaUpd.getFecha() != null && !jornadaUpd.getFecha().isEqual(jornadaDB.getFecha())){
+                jornadaDB.setFecha(jornadaUpd.getFecha());
+            }
+            if(jornadaUpd.getHoraEntrada() != null && !jornadaUpd.getHoraEntrada().isEqual(jornadaDB.getHoraEntrada())){
+                jornadaDB.setHoraEntrada(jornadaUpd.getHoraEntrada());
+            }
+            if(jornadaUpd.getHoraSalida() != null && !jornadaUpd.getHoraSalida().isEqual(jornadaDB.getHoraSalida())){
+                jornadaDB.setHoraSalida(jornadaUpd.getHoraSalida());
+            }
+            if(jornadaValidator.horarioValido(jornadaDB)){
+                if (jornadaDB.getTipo().equals(JornadaEnum.DIA_LIBRE)) {
+                    if(jornadaValidator.diaLibreValidator(jornadaDB)) {
+                        return jornadaMapper.entityToDTO(jornadaRepository.save(jornadaDB));
+                    }
+                }
+                else if(jornadaDB.getTipo().equals(JornadaEnum.VACACIONES)){
+                    if(jornadaValidator.horarioValido(jornadaDB)) {
+                        return jornadaMapper.entityToDTO(jornadaRepository.save(jornadaDB));
+                    }
+                }
+                else if(jornadaDB.getTipo().equals(JornadaEnum.NORMAL) && jornadaValidator.jornadaNormalValidator(jornadaDB)) {
+                    return jornadaMapper.entityToDTO(jornadaRepository.save(jornadaDB));
+                }
+                else if (jornadaDB.getTipo().equals(JornadaEnum.EXTRA) && jornadaValidator.jornadaExtraValidator(jornadaDB)){
+                    return jornadaMapper.entityToDTO(jornadaRepository.save(jornadaDB));
+                }
+                else {
+                    return null;
+                }
+            }
+            return null;
+        }
+        else{
+            return null;
+        }
     }
 
     @Override
