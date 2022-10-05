@@ -53,6 +53,10 @@ public class JornadaController {
     //Endpoint para modificar una jornada laboral existente en la base de datos. Recibe los datos a modificar en el body y el id de referencia como path variable.
     @PutMapping("/{id}")
     public ResponseEntity<?> updateJornada(@PathVariable Long id, @RequestBody JornadaDTO dto){
+        JornadaDTO response = jornadaService.updateJornada(id, dto);
+        if(response != null){
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
+        }
         return new ResponseEntity<>("Error al editar la jornada laboral", HttpStatus.BAD_REQUEST);
     }
     //Endpoint para eliminar una jornada laboral de la base de datos. Recibe el id de referencia como path variable.

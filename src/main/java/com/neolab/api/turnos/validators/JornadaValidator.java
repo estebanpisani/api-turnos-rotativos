@@ -33,13 +33,32 @@ JornadaRepository jornadaRepository;
         return empleadoRepository.existsById(jornada.getEmpleadoId());
     }
     public boolean horarioDisponible(Jornada jornada){
+        //Verifica que no haya otra jornada distinta que ocupe ese rango horario.
+        //En el caso de la jornada normal, no puede haber dos jornadas normales el mismo día.
         if(jornada.getTipo().equals(JornadaEnum.NORMAL)){
-            return jornadaRepository.findAll().stream()
+            if(jornadaRepository.findAll().stream()
                     .noneMatch(item -> item.getTipo().equals(JornadaEnum.NORMAL) &&
-                    item.getFecha().equals(jornada.getFecha()));
+                            item.getFecha().equals(jornada.getFecha()) && item.getId() != jornada.getId())){
+                return jornadaRepository.findAll().stream()
+                        .noneMatch(item ->
+                                item.getId() != jornada.getId() &&
+                                        item.getFecha().equals(jornada.getFecha()) &&
+                                        (
+                                                jornada.getHoraEntrada().isEqual(item.getHoraEntrada()) ||
+                                                        (
+                                                                jornada.getHoraEntrada().isAfter(item.getHoraEntrada()) &&
+                                                                        jornada.getHoraEntrada().isBefore(item.getHoraSalida()) ||
+                                                                        jornada.getHoraSalida().isAfter(item.getHoraEntrada()) &&
+                                                                                jornada.getHoraSalida().isBefore(item.getHoraSalida())
+                                                        )
+                                        )
+                        );
+            }
+            return false;
         }
         return jornadaRepository.findAll().stream()
                 .noneMatch(item ->
+                        item.getId() != jornada.getId() &&
                         item.getFecha().equals(jornada.getFecha()) &&
                         (
                             jornada.getHoraEntrada().isEqual(item.getHoraEntrada()) ||
@@ -65,7 +84,7 @@ JornadaRepository jornadaRepository;
                 .getJornadas()
                 .stream()
                 .filter(item->
-                        item.getFecha().get(weekNumber) == semanaJornadaNueva
+                        item.getFecha().get(weekNumber) == semanaJornadaNueva && item.getId() != jornada.getId()
                                 && (item.getTipo().equals(JornadaEnum.NORMAL) || item.getTipo().equals(JornadaEnum.EXTRA))
                 )
                 .collect(Collectors.toList());
@@ -89,7 +108,7 @@ JornadaRepository jornadaRepository;
         List<Jornada> jornadasDelDia = empleado.getJornadas()
                 .stream()
                 .filter(item ->
-                        item.getFecha().isEqual(jornada.getFecha()) &&
+                        item.getFecha().isEqual(jornada.getFecha()) && item.getId() != jornada.getId() &&
                                 (item.getTipo().equals(JornadaEnum.NORMAL) || item.getTipo().equals(JornadaEnum.EXTRA))
                 )
                 .collect(Collectors.toList());
@@ -126,8 +145,8 @@ JornadaRepository jornadaRepository;
                 .stream()
                 .filter(item->
                         item.getFecha().get(weekNumber) == jornada.getFecha().get(weekNumber)
-                                && item.getTipo().equals(JornadaEnum.DIA_LIBRE
-                ))
+                                && item.getTipo().equals(JornadaEnum.DIA_LIBRE) && item.getId() != jornada.getId()
+                )
                 .count()<maximo;
     }
     public boolean tieneVacacionesDisponibles(Jornada jornada,Empleado empleado, int maximo){
@@ -250,9 +269,14 @@ JornadaRepository jornadaRepository;
                     //Se verifica si el empleado tiene jornadas ese día
                     if (empleado.getJornadas()
                             .stream()
-                            .anyMatch(item -> item.getFecha().isEqual(jornada.getFecha()))) {
+                            .anyMatch(item -> item.getFecha().isEqual(jornada.getFecha()) && item.getId()!=jornada.getId())) {
                         //No permite reemplazar jornadas laborales con dias libres.
                         System.out.println("La fecha ingresada ya tiene una jornada laboral asignada.");
+                        System.out.println(empleado.getJornadas()
+                                .stream()
+                                .filter(item -> item.getFecha().isEqual(jornada.getFecha())).collect(Collectors.toList()).get(0).getId().toString() + empleado.getJornadas()
+                                .stream()
+                                .filter(item -> item.getFecha().isEqual(jornada.getFecha())).collect(Collectors.toList()).get(0).getFecha().toString());
                         return false;
                     } else {
                         System.out.println("Día Libre válido");

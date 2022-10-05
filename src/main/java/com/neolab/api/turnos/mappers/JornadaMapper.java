@@ -44,7 +44,7 @@ public class JornadaMapper {
             return jornada;
         }
         else {
-            LocalDate fecha = LocalDate.parse(dto.getFecha(), formatterDate );
+            LocalDate fecha = LocalDate.parse(dto.getFecha(), formatterDate);
             jornada.setFecha(fecha);
 
             if (dto.getTipo().toUpperCase().trim().equals(JornadaEnum.NORMAL.toString())) {
