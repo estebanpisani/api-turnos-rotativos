@@ -156,10 +156,13 @@ public class JornadaServiceImpl implements JornadaService {
     }
 
     @Override
-    public void deleteJornada(Long id) {
+    public Boolean deleteJornada(Long id) {
         Optional<Jornada> opt = jornadaRepository.findById(id);
         if(opt.isPresent()){
             jornadaRepository.deleteById(id);
+            return true;
+        }else{
+            return false;
         }
     }
 }

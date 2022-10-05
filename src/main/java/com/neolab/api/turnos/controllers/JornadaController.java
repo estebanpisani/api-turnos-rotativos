@@ -45,6 +45,7 @@ public class JornadaController {
     @PostMapping()
     public ResponseEntity<?> createJornada(@RequestBody JornadaDTO dto){
         JornadaDTO response = jornadaService.createJornada(dto);
+        System.out.println(response.getId());
         if(response != null){
             return new ResponseEntity<>(response, HttpStatus.CREATED);
         }
@@ -62,6 +63,9 @@ public class JornadaController {
     //Endpoint para eliminar una jornada laboral de la base de datos. Recibe el id de referencia como path variable.
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteJornada(@PathVariable Long id){
+        if(jornadaService.deleteJornada(id)){
+            return new ResponseEntity<>("Jornada laboral eliminada.", HttpStatus.OK);
+        }
         return new ResponseEntity<>("Error al eliminar la jornada laboral", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 

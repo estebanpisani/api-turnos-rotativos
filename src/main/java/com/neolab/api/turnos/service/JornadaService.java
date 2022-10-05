@@ -9,5 +9,5 @@ public interface JornadaService {
     List<JornadaDTO> getAllJornadas();
     List<JornadaDTO> getJornadasByEmpleado(Long id, String tipo);
     JornadaDTO getJornadaById(Long id);
-    void deleteJornada(Long id);
+    Boolean deleteJornada(Long id);
 }
