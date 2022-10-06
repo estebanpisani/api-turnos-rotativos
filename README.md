@@ -24,10 +24,19 @@ Api para Turnos Rotativos
 - `[PUT] /api/calendario/:id`: Actualiza la información de una jornada laboral específica.
 - `[DELETE] /api/calendario/:id`: Elimina una jornada laboral de la base de datos.
 
+## Instrucciones
+Una vez iniciada la aplicación, importar en Postman la colección adjunta con el nombre `API Turnos Rotativos.postman_collection.json`
+Todas las request son casos funcionales, pero se pueden probar modificando los datos para comprobar que funcionan las validaciones en cada caso.
+En caso de requerir acceder a la base de datos, ingresar a `{localhost}/h2-console/` e ingresar los siguientes datos:
+- Driver Class: `org.h2.Driver`
+- JDBC URL: `jdbc:h2:mem:testdb`
+- User Name: `admin`
+- Password: `admin`
 ## Datos
 Los datos para las solicitudes POST y PUT requieren de un formato en particular para cada entidad.
 Estos ya están ingresados en la colección de POSTMAN adjunta (.json).
 ### Empleado
+`
 {
   "nombre": string,
   "apellido": string,
@@ -36,15 +45,20 @@ Estos ya están ingresados en la colección de POSTMAN adjunta (.json).
   "fechaAlta": "yyyy/MM/dd",
   "fechaBaja": "yyyy/MM/dd" (opcional para POST)
  }
+ `
  ### Jornada
+ `
 {
   "entrada": "yyyy/MM/dd hh:mm",
   "salida": "yyyy/MM/dd hh:mm",
   "tipo": string,
   "empleadoId": int,
  }
+ `
+ 
+ 
  Depende cada tipo de jornada (Normal, Extra, Dia Libre, Vacaciones), los campos serán requeridos o ignorados.
- Sólo en el caso de Vacaciones, los campos "entrada" y "salida" requieren un formato "yyyy/MM/dd".
+ Sólo en el caso de Vacaciones, los campos `"entrada"` y `"salida"` requieren un formato `"yyyy/MM/dd"`.
  
 ## Comentarios
 - No logré encontrar una forma de solucionar los tipos de Jornadas con distintas clases, por lo que al tener clases especificadas con Enums, no logré desarrollar un
