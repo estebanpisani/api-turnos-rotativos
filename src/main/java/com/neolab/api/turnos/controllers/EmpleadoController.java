@@ -16,14 +16,16 @@ public class EmpleadoController {
     @Autowired
     EmpleadoServiceImpl empleadoService;
 
+    //Endpoint para obtener todos los empleados de la base de datos.
     @GetMapping()
-    public ResponseEntity<?> getEmpleados(){
+    public ResponseEntity<?> getAllEmpleados(){
         List<EmpleadoDTO> empleados = empleadoService.getEmpleados();
         if(empleados != null) {
             return new ResponseEntity<>(empleados, HttpStatus.OK);
         }
         return new ResponseEntity<>("Aún no hay empleados", HttpStatus.BAD_REQUEST);
     }
+    //Endpoint para obtener un empleado por su ID.
     @GetMapping("/{id}")
     public ResponseEntity<?> getEmpleadoPorId(@PathVariable Long id){
         EmpleadoDTO dto = empleadoService.getEmpleadoById(id);
@@ -32,6 +34,7 @@ public class EmpleadoController {
         }
         return new ResponseEntity<>("Empleado no encontrado", HttpStatus.BAD_REQUEST);
     }
+    //Endpoint para crear un nuevo empleado. Recibe sus datos mediante un DTO en el body de la request.
     @PostMapping()
     public ResponseEntity<?> createEmpleado(@RequestBody EmpleadoDTO dto){
         try {
@@ -45,6 +48,8 @@ public class EmpleadoController {
         }
         return new ResponseEntity<>("Error al crear empleado", HttpStatus.BAD_REQUEST);
     }
+    // Endpoint para modificar un empleado existente en la base de datos.
+    // Recibe los datos a modificar mediante un DTO en el body y el ID de referencia como path variable.
     @PutMapping("/{id}")
     public ResponseEntity<?> updateEmpleado(@PathVariable Long id, @RequestBody EmpleadoDTO dto){
         EmpleadoDTO updatedEmpleado = empleadoService.updateEmpleado(id, dto);
@@ -53,6 +58,7 @@ public class EmpleadoController {
         }
         return new ResponseEntity<>("Empleado no encontrado", HttpStatus.BAD_REQUEST);
     }
+    //Endpoint para eliminar un empleado de la base de datos. Recibe el ID de referencia como path variable.
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteEmpleado(@PathVariable Long id){
         empleadoService.deleteEmpleado(id);

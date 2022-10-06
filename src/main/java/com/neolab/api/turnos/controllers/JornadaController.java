@@ -33,7 +33,7 @@ public class JornadaController {
         }
         return new ResponseEntity<>("No hay jornadas laborales disponibles", HttpStatus.BAD_REQUEST);
     }
-    //Endpoint para crear una nueva jornada. Recibe un DTO en el body de la request.
+    //Endpoint para crear una nueva jornada. Recibe sus datos mediante un DTO en el body de la request.
     @PostMapping()
     public ResponseEntity<?> createJornada(@RequestBody JornadaDTO dto) throws Exception{
         try{

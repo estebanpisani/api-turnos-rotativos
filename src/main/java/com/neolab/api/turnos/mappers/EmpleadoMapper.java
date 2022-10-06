@@ -21,6 +21,9 @@ public class EmpleadoMapper {
         dto.setEmail(empleado.getEmail());
         dto.setFechaDeNacimiento(empleado.getFechaDeNacimiento().format(formatter));
         dto.setFechaAlta(empleado.getFechaAlta().format(formatter));
+        if(empleado.getFechaBaja()!=null) {
+            dto.setFechaBaja(empleado.getFechaBaja().format(formatter));
+        }
 
         return dto;
     }
