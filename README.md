@@ -25,8 +25,12 @@ Api para Turnos Rotativos
 - `[DELETE] /api/calendario/:id`: Elimina una jornada laboral de la base de datos.
 
 ## Instrucciones
-Una vez iniciada la aplicación, importar en Postman la colección adjunta con el nombre `API Turnos Rotativos.postman_collection.json`
-Todas las request son casos funcionales, pero se pueden probar modificando los datos para comprobar que funcionan las validaciones en cada caso.
+Una vez iniciada la aplicación, importar en Postman la colección adjunta con el nombre `API Turnos Rotativos.postman_collection.json`.
+
+Todas las request son casos funcionales, pero se pueden probar modificando los datos para comprobar que funcionan las validaciones en cada caso. Dentro de la colección de Postman, se encuentra una carpeta Errores, que son casos sencillos de horarios de entrada/salida mal ingresados.
+El resto de las validaciones puede probarse creando jornadas en horarios ocupados o con días libres.
+
+### Base de Datos
 En caso de requerir acceder a la base de datos, ingresar a `{localhost}/h2-console/` e ingresar los siguientes datos:
 - Driver Class: `org.h2.Driver`
 - JDBC URL: `jdbc:h2:mem:testdb`
@@ -57,6 +61,7 @@ Estos ya están ingresados en la colección de POSTMAN adjunta (.json).
  `
  
  
+ El campo empleadoId siempre es requerido. No es posible asignar una jornada laboral sin empleado.
  Depende cada tipo de jornada (Normal, Extra, Dia Libre, Vacaciones), los campos serán requeridos o ignorados.
  Sólo en el caso de Vacaciones, los campos `"entrada"` y `"salida"` requieren un formato `"yyyy/MM/dd"`.
  
