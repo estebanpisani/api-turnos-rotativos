@@ -242,7 +242,7 @@ JornadaRepository jornadaRepository;
         }
     }
     //Día Libre
-    public boolean diaLibreValidator(Jornada jornada){
+    public void diaLibreValidator(Jornada jornada) throws Exception{
         Empleado empleado = empleadoRepository.findById(jornada.getEmpleadoId()).get();
         // Se verifica si el empleado tiene jornadas cargadas
         if(empleado.getJornadas().size()>0){
@@ -255,30 +255,20 @@ JornadaRepository jornadaRepository;
                             .stream()
                             .anyMatch(item -> item.getFecha().isEqual(jornada.getFecha()) && item.getId()!=jornada.getId())) {
                         //No permite reemplazar jornadas laborales con dias libres.
-                        System.out.println("La fecha ingresada ya tiene una jornada laboral asignada.");
-                        System.out.println(empleado.getJornadas()
-                                .stream()
-                                .filter(item -> item.getFecha().isEqual(jornada.getFecha())).collect(Collectors.toList()).get(0).getId().toString() + empleado.getJornadas()
-                                .stream()
-                                .filter(item -> item.getFecha().isEqual(jornada.getFecha())).collect(Collectors.toList()).get(0).getFecha().toString());
-                        return false;
+                        throw new Exception("La fecha ingresada ya tiene una jornada laboral asignada.");
                     } else {
                         System.out.println("Día Libre válido");
-                        return true;
                     }
                 } else {
-                    System.out.println("No tiene días libres disponibles para esa semana.");
-                    return false;
+                    throw new Exception("No tiene días libres disponibles para esa semana.");
                 }
             }
             else {
-                System.out.println("El empleado está de vacaciones en esa fecha.");
-                return false;
+                throw new Exception("El empleado está de vacaciones en esa fecha.");
             }
         }
         else{
             System.out.println("Día Libre Válido.");
-            return true;
         }
     }
     //TODO Vacaciones

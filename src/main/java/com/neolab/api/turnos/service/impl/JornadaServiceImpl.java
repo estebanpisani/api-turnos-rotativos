@@ -33,7 +33,8 @@ public class JornadaServiceImpl implements JornadaService {
             Jornada jornada = jornadaMapper.dtoToEntity(dto);
             //Se validan los datos según el tipo de jornada.
             if (jornada.getTipo().equals(JornadaEnum.DIA_LIBRE)) {
-                if(jornadaValidator.usuarioExiste(jornada) && jornadaValidator.diaLibreValidator(jornada)) {
+                if(jornadaValidator.usuarioExiste(jornada)) {
+                    jornadaValidator.diaLibreValidator(jornada);
                     Jornada newJornada = jornadaRepository.save(jornada);
                     return jornadaMapper.entityToDTO(newJornada);
                 }
@@ -88,9 +89,8 @@ public class JornadaServiceImpl implements JornadaService {
                     jornadaDB.setHoraSalida(horaSalida);
                 }
                 if (jornadaDB.getTipo().equals(JornadaEnum.DIA_LIBRE)) {
-                    if (jornadaValidator.diaLibreValidator(jornadaDB)) {
+                        jornadaValidator.diaLibreValidator(jornadaDB);
                         return jornadaMapper.entityToDTO(jornadaRepository.save(jornadaDB));
-                    }
                 } else if (jornadaDB.getTipo().equals(JornadaEnum.VACACIONES)) {
                     if (jornadaValidator.horarioValido(jornadaDB)) {
                         return jornadaMapper.entityToDTO(jornadaRepository.save(jornadaDB));
