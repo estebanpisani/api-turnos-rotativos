@@ -1,9 +1,11 @@
 package com.neolab.api.turnos.service.impl;
 
 import com.neolab.api.turnos.dto.JornadaDTO;
+import com.neolab.api.turnos.entity.Empleado;
 import com.neolab.api.turnos.entity.Jornada;
 import com.neolab.api.turnos.enums.JornadaEnum;
 import com.neolab.api.turnos.mappers.JornadaMapper;
+import com.neolab.api.turnos.repository.EmpleadoRepository;
 import com.neolab.api.turnos.repository.JornadaRepository;
 import com.neolab.api.turnos.service.JornadaService;
 import com.neolab.api.turnos.validators.JornadaValidator;
@@ -25,16 +27,17 @@ public class JornadaServiceImpl implements JornadaService {
     JornadaMapper jornadaMapper;
     @Autowired
     JornadaValidator jornadaValidator;
+    @Autowired
+    EmpleadoRepository empleadoRepository;
     @Override
     public JornadaDTO createJornada(JornadaDTO dto) throws Exception {
         try{
         //Se crea una entidad con los datos que llegan desde el DTO.
             Jornada jornada = jornadaMapper.dtoToEntity(dto);
 
-            jornadaValidator.usuarioExiste(jornada);
             //Se validan los datos según el tipo de jornada.
             if (jornada.getTipo().equals(JornadaEnum.DIA_LIBRE)) {
-                jornadaValidator.diaLibreValidator(jornada);
+//                jornadaValidator.diaLibreValidator(jornada);
                 Jornada newJornada = jornadaRepository.save(jornada);
                 return jornadaMapper.entityToDTO(newJornada);
             }
@@ -46,14 +49,42 @@ public class JornadaServiceImpl implements JornadaService {
                 return jornadaMapper.entityToDTO(newJornada);
             }
             if (jornada.getTipo().equals(JornadaEnum.NORMAL)) {
-                jornadaValidator.jornadaNormalValidator(jornada);
-                Jornada newJornada = jornadaRepository.save(jornada);
-                return jornadaMapper.entityToDTO(newJornada);
+                if(jornadaValidator.obtenerHoras(jornada)>=6 && jornadaValidator.obtenerHoras(jornada)<=8) {
+                    //Verifica si no hay otra jornada en ese horario
+                    jornadaValidator.horarioDisponible(jornada);
+                    if(jornada.getEmpleados().size()>0){
+                        for (Empleado empleado: jornada.getEmpleados()) {
+                            jornadaValidator.jornadaNormalValidator(jornada, empleado);
+                        }
+                    }
+                    Jornada newJornada = jornadaRepository.save(jornada);
+                    return jornadaMapper.entityToDTO(newJornada);
+                }
+                else{
+                    throw new Exception("No tiene entre 6 y 8hs");
+                }
             }
             else if (jornada.getTipo().equals(JornadaEnum.EXTRA)) {
-                jornadaValidator.jornadaExtraValidator(jornada);
-                Jornada newJornada = jornadaRepository.save(jornada);
-                return jornadaMapper.entityToDTO(newJornada);
+                if (jornadaValidator.obtenerHoras(jornada) >= 2 && jornadaValidator.obtenerHoras(jornada) <= 6) {
+                    jornadaValidator.horarioDisponible(jornada);
+                    if(jornada.getEmpleados().size()>0){
+                        jornada.getEmpleados().stream().forEach(empleado -> {
+                            try {
+                                jornadaValidator.jornadaExtraValidator(jornada, empleado);
+                            } catch (Exception e) {
+                                throw new RuntimeException(e.getMessage());
+                            }
+                        });
+    //                        for (Empleado empleado: jornada.getEmpleados()) {
+    //                            jornadaValidator.jornadaExtraValidator(jornada, empleado);
+    //                        }
+                    }
+                    Jornada newJornada = jornadaRepository.save(jornada);
+                    return jornadaMapper.entityToDTO(newJornada);
+                }
+                else {
+                    throw new Exception("No tiene entre 2 y 6hs");
+                }
             }
         }
         catch(Exception e){
@@ -68,10 +99,25 @@ public class JornadaServiceImpl implements JornadaService {
             //Se busca la entidad en la base de datos por su id.
             Optional<Jornada> opt = jornadaRepository.findById(id);
             if (opt.isPresent()) {
-                // Se obtiene la jornada de la base de datos y se modifican sólo los datos del DTO que no son nulos y distintos.
+                // Se obtiene la jornada de la base de datos y se modifican solo los datos del DTO que no son nulos.
                 DateTimeFormatter formatterHour = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm");
                 Jornada jornadaDB = opt.get();
-//            Jornada jornadaUpd = jornadaMapper.dtoToEntity(dto);
+                jornadaValidator.horarioDisponible(jornadaDB);
+                if(dto.getEmpleadosId().size()>0 && dto.getEmpleadosId().size()<=2) {
+                    List<Empleado> empleados = new ArrayList<>();
+                    for (Long empleadosId : dto.getEmpleadosId()) {
+                        if(empleadoRepository.existsById(empleadosId)){
+                            jornadaValidator.jornadaNormalValidator(jornadaDB, empleadoRepository.getReferenceById(empleadosId));
+                            empleados.add(empleadoRepository.getReferenceById(empleadosId));
+                        }
+                        else{
+                            throw new Exception("Empleado no existe.");
+                        }
+                    }
+                    jornadaDB.setEmpleados(empleados);
+                }else{
+                    throw new Exception("Solo se permiten 2 empleados máximo.");
+                }
                 if (dto.getEntrada() != null) {
                     LocalDateTime horaEntrada = LocalDateTime.parse(dto.getEntrada(), formatterHour);
                     jornadaDB.setEntrada(horaEntrada);
@@ -81,7 +127,7 @@ public class JornadaServiceImpl implements JornadaService {
                     jornadaDB.setSalida(horaSalida);
                 }
                 if (jornadaDB.getTipo().equals(JornadaEnum.DIA_LIBRE)) {
-                        jornadaValidator.diaLibreValidator(jornadaDB);
+//                        jornadaValidator.diaLibreValidator(jornadaDB);
                         return jornadaMapper.entityToDTO(jornadaRepository.save(jornadaDB));
                 }
 
@@ -91,11 +137,15 @@ public class JornadaServiceImpl implements JornadaService {
                     return jornadaMapper.entityToDTO(jornadaRepository.save(jornadaDB));
                 }
                 if (jornadaDB.getTipo().equals(JornadaEnum.NORMAL)) {
-                    jornadaValidator.jornadaNormalValidator(jornadaDB);
-                    return jornadaMapper.entityToDTO(jornadaRepository.save(jornadaDB));
+                    if(jornadaValidator.obtenerHoras(jornadaDB)>=6 && jornadaValidator.obtenerHoras(jornadaDB)<=8) {
+                        return jornadaMapper.entityToDTO(jornadaRepository.save(jornadaDB));
+                    }
+                    else{
+                        throw new Exception("No tiene entre 6 y 8hs");
+                    }
                 }
                 if (jornadaDB.getTipo().equals(JornadaEnum.EXTRA)) {
-                    jornadaValidator.jornadaExtraValidator(jornadaDB);
+//                    jornadaValidator.jornadaExtraValidator(jornadaDB);
                     return jornadaMapper.entityToDTO(jornadaRepository.save(jornadaDB));
                 }
                 else {
@@ -103,7 +153,7 @@ public class JornadaServiceImpl implements JornadaService {
                 }
             }
             else {
-                throw new Exception("Usuario no existe.");
+                throw new Exception("Jornada no existe.");
             }
         }
         catch(Exception e){
@@ -119,7 +169,7 @@ public class JornadaServiceImpl implements JornadaService {
 
     @Override
     public List<JornadaDTO> getJornadasByEmpleado(Long id, String tipo) {
-        List<Jornada> jornadas = jornadaRepository.findByEmpleadoId(id);
+        List<Jornada> jornadas = jornadaRepository.findJornadasByEmpleadosId(id);
         List<JornadaDTO> dtos = new ArrayList<>();
         if(tipo != null){
             List<Jornada> jornadasFiltradas = jornadas.stream().filter(item-> item.getTipo().toString().equalsIgnoreCase(tipo.trim().replace(" ","_"))).collect(Collectors.toList());
@@ -137,18 +187,6 @@ public class JornadaServiceImpl implements JornadaService {
         Optional<Jornada> opt = jornadaRepository.findById(id);
         if(opt.isPresent()){
             return jornadaMapper.entityToDTO(opt.get());
-        }
-        return null;
-    }
-    public String getEmpleadoByJornadaId(Long id) {
-        Optional<Jornada> opt = jornadaRepository.findById(id);
-        if(opt.isPresent()){
-            String response = opt.get().getEmpleado().getNombre();
-            if(response != null){
-                return response;
-            }else{
-                System.out.println("Empleado nulo.");
-            }
         }
         return null;
     }

@@ -18,6 +18,7 @@ import java.util.List;
 public class Empleado {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "empleado_id")
     private Long id;
     private String nombre;
     private String apellido;
@@ -26,7 +27,13 @@ public class Empleado {
     private LocalDate fechaAlta;
     private LocalDate fechaBaja;
 
-    @OneToMany(mappedBy = "empleado")
+//    @OneToMany(mappedBy = "empleado")
+    @ManyToMany(fetch = FetchType.LAZY,
+            cascade = {
+                    CascadeType.PERSIST,
+                    CascadeType.MERGE
+            },
+            mappedBy = "empleados")
     List<Jornada> jornadas = new ArrayList<>();
 
     public Empleado() {

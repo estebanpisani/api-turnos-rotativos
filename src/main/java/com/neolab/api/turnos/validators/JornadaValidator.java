@@ -30,12 +30,6 @@ JornadaRepository jornadaRepository;
             throw new Exception("El horario ingresado no es válido");
         }
     }
-    public void usuarioExiste(Jornada jornada) throws Exception{
-        //Verifica si el usuario referenciado existe en la base de datos.
-        if(!empleadoRepository.existsById(jornada.getEmpleadoId())){
-            throw new Exception("El usuario no existe.");
-        }
-    }
     public void horarioDisponible(Jornada jornada) throws Exception{
         //Verifica que no haya otra jornada distinta que ocupe ese rango horario.
         //En el caso de la jornada normal, no puede haber dos jornadas normales el mismo día.
@@ -152,48 +146,53 @@ JornadaRepository jornadaRepository;
     //  no puede haber más que 2 empleados.
     //Validaciones según tipo
     //Normal:
-    public void jornadaNormalValidator(Jornada jornada) throws Exception{
-        //Se verifica si no tiene menos de 6hs ni más de 8hs
-        if(obtenerHoras(jornada)>=6 && obtenerHoras(jornada)<=8) {
-            Empleado empleado = empleadoRepository.findById(jornada.getEmpleadoId()).get();
-            // Se verifica si el empleado tiene jornadas cargadas
-            if (empleado.getJornadas().size() > 0) {
+    public void jornadaNormalValidator(Jornada jornada, Empleado empleado) throws Exception {
+        // Se verifica si el empleado tiene jornadas cargadas
+        if (empleado.getJornadas().size() > 0 && empleado.getJornadas().stream().noneMatch(item -> item == null)) {
+            try {
                 noEstaDeVacaciones(jornada, empleado);
+            } catch (Exception e) {
+                throw new Exception(e.getMessage());
+            }
+            try {
                 //Se verifica si no tiene el día libre
                 noTieneDiaLibre(jornada, empleado);
+            } catch (Exception e) {
+                throw new Exception(e.getMessage());
+            }
+            try {
                 //Se verifica si el día está disponible
                 horarioDisponible(jornada);
+            } catch (Exception e) {
+                throw new Exception(e.getMessage());
+            }
+            try {
                 //Se verifica si la jornada no supera las horas semanales.
                 noSuperaHorasSemanales(jornada, empleado);
+            } catch (Exception e) {
+                throw new Exception(e.getMessage());
+            }
+            try {
                 //Se verifica si supera las horas diarias máximas
                 noSuperaHorasDiarias(jornada, empleado);
+            } catch (Exception e) {
+                throw new Exception(e.getMessage());
             }
-        }
-        else{
-            throw new Exception("No tiene entre 6 y 8hs");
         }
     }
     //Extra
-    public void jornadaExtraValidator(Jornada jornada) throws Exception {
-        //Se verifica si no tiene menos de 2hs ni más de 6hs
-        if (obtenerHoras(jornada) >= 2 && obtenerHoras(jornada) <= 6) {
-            Empleado empleado = empleadoRepository.findById(jornada.getEmpleadoId()).get();
-            // Se verifica si el empleado tiene jornadas cargadas
-            if (empleado.getJornadas().size() > 0) {
-                noEstaDeVacaciones(jornada, empleado);
-                noTieneDiaLibre(jornada, empleado);
-                horarioDisponible(jornada);
-                noSuperaHorasSemanales(jornada, empleado);
-                noSuperaHorasDiarias(jornada, empleado);
-            }
-        }
-        else {
-            throw new Exception("No tiene entre 2 y 6hs");
+    public void jornadaExtraValidator(Jornada jornada, Empleado empleado) throws Exception {
+        // Se verifica si el empleado tiene jornadas cargadas
+        if (empleado.getJornadas().size() > 0) {
+            noEstaDeVacaciones(jornada, empleado);
+            noTieneDiaLibre(jornada, empleado);
+            noSuperaHorasSemanales(jornada, empleado);
+            noSuperaHorasDiarias(jornada, empleado);
         }
     }
     //Día Libre
-    public void diaLibreValidator(Jornada jornada) throws Exception{
-        Empleado empleado = empleadoRepository.findById(jornada.getEmpleadoId()).get();
+    public void diaLibreValidator(Jornada jornada, Empleado empleado) throws Exception{
+//        Empleado empleado = empleadoRepository.findById(jornada.getEmpleadoId()).get();
         // Se verifica si el empleado tiene jornadas cargadas
         if(empleado.getJornadas().size()>0){
             //Se verifica si no está de vacaciones

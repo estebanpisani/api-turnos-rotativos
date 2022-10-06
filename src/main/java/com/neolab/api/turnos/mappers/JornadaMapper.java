@@ -1,8 +1,11 @@
 package com.neolab.api.turnos.mappers;
 
 import com.neolab.api.turnos.dto.JornadaDTO;
+import com.neolab.api.turnos.entity.Empleado;
 import com.neolab.api.turnos.entity.Jornada;
 import com.neolab.api.turnos.enums.JornadaEnum;
+import com.neolab.api.turnos.repository.EmpleadoRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
@@ -14,16 +17,19 @@ import java.util.List;
 
 @Component
 public class JornadaMapper {
+    @Autowired
+    EmpleadoRepository empleadoRepository;
     public JornadaDTO entityToDTO(Jornada jornada){
         DateTimeFormatter formatterHour = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm");
         JornadaDTO dto = new JornadaDTO();
 
         dto.setId(jornada.getId());
-        dto.setEmpleadoId(jornada.getEmpleadoId());
         dto.setEntrada(jornada.getEntrada().format(formatterHour));
         dto.setSalida(jornada.getSalida().format(formatterHour));
         dto.setTipo(jornada.getTipo().toString());
-
+        for (Empleado empleado : jornada.getEmpleados()) {
+            dto.getEmpleadosId().add(empleado.getId());
+        }
         return dto;
     }
     public Jornada dtoToEntity(JornadaDTO dto) throws Exception{
@@ -32,11 +38,9 @@ public class JornadaMapper {
         DateTimeFormatter formatterDate = DateTimeFormatter.ofPattern("yyyy/MM/dd");
         Jornada jornada = new Jornada();
 
-        if(dto.getEmpleadoId() == null || dto.getTipo() == null || dto.getTipo().isEmpty() || dto.getEntrada() == null || dto.getEntrada().isEmpty()){
+        if(dto.getTipo() == null || dto.getTipo().isEmpty() || dto.getEntrada() == null || dto.getEntrada().isEmpty()){
             throw new Exception("Campos requeridos.");
         }
-
-        jornada.setEmpleadoId(dto.getEmpleadoId());
 
         if (dto.getTipo().toUpperCase().trim().replace(" ", "_").equals(JornadaEnum.DIA_LIBRE.toString())) {
             jornada.setTipo(JornadaEnum.DIA_LIBRE);
@@ -65,6 +69,22 @@ public class JornadaMapper {
         jornada.setEntrada(horaEntrada);
         LocalDateTime horaSalida = LocalDateTime.parse(dto.getSalida(), formatterHour);
         jornada.setSalida(horaSalida);
+        //Se agregan los empleados a la jornada laboral solo si existen y no superan el máximo permitido.
+        if(dto.getEmpleadosId().size()>0) {
+            if(dto.getEmpleadosId().size()<=2) {
+                for (Long id : dto.getEmpleadosId()) {
+                    if (empleadoRepository.existsById(id)) {
+                        jornada.addEmpleado(empleadoRepository.getReferenceById(id));
+                    }
+                    else{
+                        throw new Exception("Empleado no existe.");
+                    }
+                }
+            }
+            else{
+                throw new Exception("Solo se permiten 2 empleados máximo.");
+            }
+        }
         return jornada;
     }
     public List<JornadaDTO> entityListToDTOList(List<Jornada> jornadas){

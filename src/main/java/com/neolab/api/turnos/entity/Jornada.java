@@ -11,6 +11,9 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "jornadas")
 @Getter
@@ -20,17 +23,37 @@ import java.time.LocalDateTime;
 public class Jornada {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "jornada_id")
     private Long id;
-    protected LocalDateTime entrada;
-    protected LocalDateTime salida;
+    private LocalDateTime entrada;
+    private LocalDateTime salida;
     private Enum<JornadaEnum> tipo;
+//
+//    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+//    @JoinColumn(name = "empleado_id", insertable = false, updatable = false)
+//    @Column(name="empleado_id", nullable = false)
+//    private Long empleadoId;
+    @ManyToMany(fetch = FetchType.LAZY,
+            cascade = {
+                    CascadeType.PERSIST,
+                    CascadeType.MERGE
+            })
+    @JoinTable(name = "jornadas_empleados",
+            joinColumns = { @JoinColumn(name = "jornada_id") },
+            inverseJoinColumns = { @JoinColumn(name = "empleado_id") })
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
-    @JoinColumn(name = "empleado_id", insertable = false, updatable = false)
-    protected Empleado empleado;
-    @Column(name="empleado_id", nullable = false)
-    private Long empleadoId;
+    private List<Empleado> empleados = new ArrayList<>();
 
-    
 
+    public void addEmpleado(Empleado empleado) {
+        this.empleados.add(empleado);
+    }
+
+    public void removeEmpleado(long id) {
+        Empleado empleado= this.empleados.stream().filter(item -> item.getId() == id).findFirst().orElse(null);
+        if (empleado != null) {
+            this.empleados.remove(empleado);
+//            empleado.getJornadas().remove(this);
+        }
+    }
 }

@@ -7,6 +7,5 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 @Repository
 public interface JornadaRepository extends JpaRepository<Jornada, Long> {
-
-    List<Jornada> findByEmpleadoId(Long id);
+    List<Jornada> findJornadasByEmpleadosId(Long empleadoId);
 }
