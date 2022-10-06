@@ -30,6 +30,7 @@ public class JornadaMapper {
 
         DateTimeFormatter formatterHour = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm");
         DateTimeFormatter formatterDate = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+        //Se crea una entidad Jornada vacía.
         Jornada jornada = new Jornada();
 
         if(dto.getEmpleadoId() == null || dto.getTipo() == null || dto.getTipo().isEmpty() || dto.getEntrada() == null || dto.getEntrada().isEmpty()){

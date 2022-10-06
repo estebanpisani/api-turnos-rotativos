@@ -26,7 +26,12 @@ public class EmpleadoServiceImpl implements EmpleadoService {
     public EmpleadoDTO createEmpleado(EmpleadoDTO dto) {
         //Crea una entidad Empleado con lo datos del DTO y se guarda en la base de datos.
         //La clase EmpleadoMapper se encarga de hacer la conversión de tipos de datos según se requiera.
-        Empleado newEmpleado = empleadoRepository.save(empleadoMapper.dtoToEntity(dto));
+        Empleado newEmpleado = null;
+        try {
+            newEmpleado = empleadoRepository.save(empleadoMapper.dtoToEntity(dto));
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
         return empleadoMapper.entityToDTO(newEmpleado);
     }
 

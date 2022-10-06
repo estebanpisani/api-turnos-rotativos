@@ -27,16 +27,20 @@ public class EmpleadoMapper {
 
         return dto;
     }
-    public Empleado dtoToEntity(EmpleadoDTO dto){
+    public Empleado dtoToEntity(EmpleadoDTO dto) throws Exception{
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+        //Se crea una entidad Empleado vacía.
         Empleado empleado = new Empleado();
+        //Se validan los campos requeridos
+        if(dto.getNombre() == null || dto.getNombre().isEmpty() || dto.getApellido() == null || dto.getApellido().isEmpty() || dto.getEmail() == null || dto.getEmail().isEmpty()|| dto.getFechaDeNacimiento() == null || dto.getFechaDeNacimiento().isEmpty()){
+            throw new Exception("Campos requeridos.");
+        }
         empleado.setNombre(dto.getNombre());
         empleado.setApellido(dto.getApellido());
         empleado.setEmail(dto.getEmail());
-        if(dto.getFechaDeNacimiento()!=null) {
-            LocalDate fechaDeNacimiento = LocalDate.parse(dto.getFechaDeNacimiento(), formatter);
-            empleado.setFechaDeNacimiento(fechaDeNacimiento);
-        }
+        //Se setean las fechas con los formatos requeridos
+        LocalDate fechaDeNacimiento = LocalDate.parse(dto.getFechaDeNacimiento(), formatter);
+        empleado.setFechaDeNacimiento(fechaDeNacimiento);
         if(dto.getFechaAlta() != null) {
             LocalDate fechaDeAlta = LocalDate.parse(dto.getFechaAlta(), formatter);
             empleado.setFechaAlta(fechaDeAlta);
@@ -58,7 +62,12 @@ public class EmpleadoMapper {
     public List<Empleado> dtoListToEntityList(List<EmpleadoDTO> dtos){
         List<Empleado> empleados = new ArrayList<>();
         for (EmpleadoDTO dto: dtos) {
-            Empleado empleado = this.dtoToEntity(dto);
+            Empleado empleado = null;
+            try {
+                empleado = this.dtoToEntity(dto);
+            } catch (Exception e) {
+                throw new RuntimeException(e.getMessage());
+            }
             empleados.add(empleado);
         }
         return empleados;
