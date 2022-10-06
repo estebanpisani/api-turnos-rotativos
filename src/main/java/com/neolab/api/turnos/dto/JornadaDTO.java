@@ -7,20 +7,20 @@ import lombok.Setter;
 @Setter
 public class JornadaDTO {
     private Long id;
-    private String fecha;
-    private String horaEntrada;
-    private String horaSalida;
+//    private String fecha;
+    private String entrada;
+    private String salida;
     private String tipo;
     private Long empleadoId;
 
     public JornadaDTO() {
     }
 
-    public JornadaDTO(Long id, String fecha, String horaEntrada, String horaSalida, String tipo, Long empleadoId) {
+    public JornadaDTO(Long id, String entrada, String salida, String tipo, Long empleadoId) {
         this.id = id;
-        this.fecha = fecha;
-        this.horaEntrada = horaEntrada;
-        this.horaSalida = horaSalida;
+//        this.fecha = fecha;
+        this.entrada = entrada;
+        this.salida = salida;
         this.tipo = tipo;
         this.empleadoId = empleadoId;
     }

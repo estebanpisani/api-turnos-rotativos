@@ -21,9 +21,9 @@ public class Jornada {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    protected LocalDate fecha;
-    protected LocalDateTime horaEntrada;
-    protected LocalDateTime horaSalida;
+//    protected LocalDate fecha;
+    protected LocalDateTime entrada;
+    protected LocalDateTime salida;
     private Enum<JornadaEnum> tipo;
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)

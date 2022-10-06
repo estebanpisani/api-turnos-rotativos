@@ -25,8 +25,8 @@ JornadaRepository jornadaRepository;
     //Validar jornada
     public void horarioValido(Jornada jornada) throws Exception{
         //Verifica si el ingreso es anterior a la salida y si la fecha de ingreso coincide con la fecha.
-        if(jornada.getHoraEntrada().isAfter(jornada.getHoraSalida())
-                || !LocalDate.of(jornada.getHoraEntrada().getYear(),jornada.getHoraEntrada().getMonth(), jornada.getHoraEntrada().getDayOfMonth()).isEqual(jornada.getFecha())){
+        if(jornada.getEntrada().isAfter(jornada.getSalida())
+                || !LocalDate.of(jornada.getEntrada().getYear(),jornada.getEntrada().getMonth(), jornada.getEntrada().getDayOfMonth()).isEqual(jornada.getEntrada().toLocalDate())){
             throw new Exception("El horario ingresado no es válido");
         }
     }
@@ -42,21 +42,21 @@ JornadaRepository jornadaRepository;
         if(jornada.getTipo().equals(JornadaEnum.NORMAL) && jornadaRepository.findAll().stream()
                 .anyMatch(item ->
                         item.getTipo().equals(JornadaEnum.NORMAL) &&
-                        item.getFecha().equals(jornada.getFecha()) &&
+                        item.getEntrada().toLocalDate().equals(jornada.getEntrada().toLocalDate()) &&
                         !item.getId().equals(jornada.getId()))){
             throw new Exception("Ya hay una jornada en ese horario.");
         }
         if (jornadaRepository.findAll().stream()
                 .anyMatch(item ->
                         !item.getId().equals(jornada.getId()) &&
-                        item.getFecha().equals(jornada.getFecha()) &&
+                        item.getEntrada().toLocalDate().equals(jornada.getEntrada().toLocalDate()) &&
                         (
-                            jornada.getHoraEntrada().isEqual(item.getHoraEntrada()) ||
+                            jornada.getEntrada().isEqual(item.getEntrada()) ||
                             (
-                            jornada.getHoraEntrada().isAfter(item.getHoraEntrada()) &&
-                            jornada.getHoraEntrada().isBefore(item.getHoraSalida()) ||
-                            jornada.getHoraSalida().isAfter(item.getHoraEntrada()) &&
-                            jornada.getHoraSalida().isBefore(item.getHoraSalida())
+                            jornada.getEntrada().isAfter(item.getEntrada()) &&
+                            jornada.getEntrada().isBefore(item.getSalida()) ||
+                            jornada.getSalida().isAfter(item.getEntrada()) &&
+                            jornada.getSalida().isBefore(item.getSalida())
                             )
                         )
         )){
@@ -64,19 +64,19 @@ JornadaRepository jornadaRepository;
         }
     }
     public long obtenerHoras(Jornada jornada){
-        return jornada.getHoraEntrada().until(jornada.getHoraSalida(), ChronoUnit.HOURS);
+        return jornada.getEntrada().until(jornada.getSalida(), ChronoUnit.HOURS);
     }
         //  Cada empleado no puede trabajar más de 48 horas semanales, ni menos de 30.
     public void noSuperaHorasSemanales(Jornada jornada, Empleado empleado) throws Exception {
         //Se obtiene el número de la semana del año para comparar.
         TemporalField weekNumber = WeekFields.of(Locale.getDefault()).weekOfWeekBasedYear();
-        int semanaJornadaNueva = jornada.getFecha().get(weekNumber);
+        int semanaJornadaNueva = jornada.getEntrada().toLocalDate().get(weekNumber);
         //Se filtran jornadas existentes en la misma semana
         List<Jornada> jornadasMismaSemana = empleado
                 .getJornadas()
                 .stream()
                 .filter(item->
-                        item.getFecha().get(weekNumber) == semanaJornadaNueva && !item.getId().equals(jornada.getId())
+                        item.getEntrada().toLocalDate().get(weekNumber) == semanaJornadaNueva && !item.getId().equals(jornada.getId())
                                 && (item.getTipo().equals(JornadaEnum.NORMAL) || item.getTipo().equals(JornadaEnum.EXTRA))
                 )
                 .collect(Collectors.toList());
@@ -99,7 +99,7 @@ JornadaRepository jornadaRepository;
         List<Jornada> jornadasDelDia = empleado.getJornadas()
                 .stream()
                 .filter(item ->
-                        item.getFecha().isEqual(jornada.getFecha()) && !item.getId().equals(jornada.getId()) &&
+                        item.getEntrada().toLocalDate().isEqual(jornada.getEntrada().toLocalDate()) && !item.getId().equals(jornada.getId()) &&
                                 (item.getTipo().equals(JornadaEnum.NORMAL) || item.getTipo().equals(JornadaEnum.EXTRA))
                 )
                 .collect(Collectors.toList());
@@ -112,7 +112,7 @@ JornadaRepository jornadaRepository;
     }
     //  Si un empleado cargó “Dia libre” no podrá trabajar durante las 24 horas correspondientes a ese día.
     public void noTieneDiaLibre(Jornada jornada, Empleado empleado) throws Exception{
-        if (empleado.getJornadas().stream().anyMatch(item -> item.getFecha().isEqual(jornada.getFecha()) && (item.getTipo().equals(JornadaEnum.DIA_LIBRE)))){
+        if (empleado.getJornadas().stream().anyMatch(item -> item.getEntrada().toLocalDate().isEqual(jornada.getEntrada().toLocalDate()) && (item.getTipo().equals(JornadaEnum.DIA_LIBRE)))){
             throw new Exception("El empleado tiene el día libre");
         }
     }
@@ -121,12 +121,12 @@ JornadaRepository jornadaRepository;
                 .anyMatch(item ->
                         item.getTipo().equals(JornadaEnum.VACACIONES) &&
                                 (
-                                        jornada.getFecha().isEqual(item.getHoraEntrada().toLocalDate()) ||
+                                        jornada.getEntrada().toLocalDate().isEqual(item.getEntrada().toLocalDate()) ||
                                                 (
-                                                        jornada.getFecha().isAfter(item.getHoraEntrada().toLocalDate()) &&
-                                                        jornada.getFecha().isBefore(item.getHoraSalida().toLocalDate())
+                                                        jornada.getEntrada().toLocalDate().isAfter(item.getEntrada().toLocalDate()) &&
+                                                        jornada.getEntrada().toLocalDate().isBefore(item.getSalida().toLocalDate())
                                                 ) ||
-                                                jornada.getFecha().isEqual(item.getHoraSalida().toLocalDate())
+                                                jornada.getEntrada().toLocalDate().isEqual(item.getSalida().toLocalDate())
                                 )
                 )){
             throw new Exception("El empleado está de vacaciones en esa fecha.");
@@ -140,7 +140,7 @@ JornadaRepository jornadaRepository;
         if (empleado.getJornadas()
                 .stream()
                 .filter(item->
-                        item.getFecha().get(weekNumber) == jornada.getFecha().get(weekNumber)
+                        item.getEntrada().toLocalDate().get(weekNumber) == jornada.getEntrada().toLocalDate().get(weekNumber)
                                 && item.getTipo().equals(JornadaEnum.DIA_LIBRE) && !item.getId().equals(jornada.getId())
                 )
                 .count()==maximo){
@@ -218,7 +218,7 @@ JornadaRepository jornadaRepository;
                     //Se verifica si el empleado tiene jornadas ese día
                     if (empleado.getJornadas()
                             .stream()
-                            .anyMatch(item -> item.getFecha().isEqual(jornada.getFecha()) && !item.getId().equals(jornada.getId()))) {
+                            .anyMatch(item -> item.getEntrada().toLocalDate().isEqual(jornada.getEntrada().toLocalDate()) && !item.getId().equals(jornada.getId()))) {
                         //No permite reemplazar jornadas laborales con dias libres.
                         throw new Exception("La fecha ingresada ya tiene una jornada laboral asignada.");
                     } else {

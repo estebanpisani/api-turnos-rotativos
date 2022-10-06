@@ -10,7 +10,6 @@ import com.neolab.api.turnos.validators.JornadaValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -70,21 +69,16 @@ public class JornadaServiceImpl implements JornadaService {
             Optional<Jornada> opt = jornadaRepository.findById(id);
             if (opt.isPresent()) {
                 // Se obtiene la jornada de la base de datos y se modifican sólo los datos del DTO que no son nulos y distintos.
-                DateTimeFormatter formatterDate = DateTimeFormatter.ofPattern("yyyy/MM/dd");
                 DateTimeFormatter formatterHour = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm");
                 Jornada jornadaDB = opt.get();
 //            Jornada jornadaUpd = jornadaMapper.dtoToEntity(dto);
-                if (dto.getFecha() != null) {
-                    LocalDate fecha = LocalDate.parse(dto.getFecha(), formatterDate);
-                    jornadaDB.setFecha(fecha);
+                if (dto.getEntrada() != null) {
+                    LocalDateTime horaEntrada = LocalDateTime.parse(dto.getEntrada(), formatterHour);
+                    jornadaDB.setEntrada(horaEntrada);
                 }
-                if (dto.getHoraEntrada() != null) {
-                    LocalDateTime horaEntrada = LocalDateTime.parse(dto.getHoraEntrada(), formatterHour);
-                    jornadaDB.setHoraEntrada(horaEntrada);
-                }
-                if (dto.getHoraSalida() != null) {
-                    LocalDateTime horaSalida = LocalDateTime.parse(dto.getHoraSalida(), formatterHour);
-                    jornadaDB.setHoraSalida(horaSalida);
+                if (dto.getSalida() != null) {
+                    LocalDateTime horaSalida = LocalDateTime.parse(dto.getSalida(), formatterHour);
+                    jornadaDB.setSalida(horaSalida);
                 }
                 if (jornadaDB.getTipo().equals(JornadaEnum.DIA_LIBRE)) {
                         jornadaValidator.diaLibreValidator(jornadaDB);
