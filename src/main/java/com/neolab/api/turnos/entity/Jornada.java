@@ -25,7 +25,7 @@ public class Jornada {
     protected LocalDateTime salida;
     private Enum<JornadaEnum> tipo;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "empleado_id", insertable = false, updatable = false)
     protected Empleado empleado;
     @Column(name="empleado_id", nullable = false)
