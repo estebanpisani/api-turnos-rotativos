@@ -31,34 +31,32 @@ public class JornadaServiceImpl implements JornadaService {
         try{
         //Se crea una entidad con los datos que llegan desde el DTO.
             Jornada jornada = jornadaMapper.dtoToEntity(dto);
+
+            jornadaValidator.usuarioExiste(jornada);
             //Se validan los datos según el tipo de jornada.
             if (jornada.getTipo().equals(JornadaEnum.DIA_LIBRE)) {
-                if(jornadaValidator.usuarioExiste(jornada)) {
-                    jornadaValidator.diaLibreValidator(jornada);
-                    Jornada newJornada = jornadaRepository.save(jornada);
-                    return jornadaMapper.entityToDTO(newJornada);
-                }
+                jornadaValidator.diaLibreValidator(jornada);
+                Jornada newJornada = jornadaRepository.save(jornada);
+                return jornadaMapper.entityToDTO(newJornada);
             }
+            //Si es vacaciones, jornada normal o extra, se verifica si la jornada tiene un formato válido.
+            jornadaValidator.horarioValido(jornada);
+
             if(jornada.getTipo().equals(JornadaEnum.VACACIONES)){
-                if(jornadaValidator.usuarioExiste(jornada) && jornadaValidator.horarioValido(jornada)) {
-                    Jornada newJornada = jornadaRepository.save(jornada);
-                    return jornadaMapper.entityToDTO(newJornada);
-                }
+                Jornada newJornada = jornadaRepository.save(jornada);
+                return jornadaMapper.entityToDTO(newJornada);
             }
-            else if(jornadaValidator.usuarioExiste(jornada) && jornadaValidator.horarioValido(jornada)) {
-            //Si es jornada normal o extra, se verifica si la jornada tiene un formato válido
-                if (jornada.getTipo().equals(JornadaEnum.NORMAL)) {
-                    jornadaValidator.jornadaNormalValidator(jornada);
-                    Jornada newJornada = jornadaRepository.save(jornada);
-                    return jornadaMapper.entityToDTO(newJornada);
-                }
-                else if (jornada.getTipo().equals(JornadaEnum.EXTRA)) {
-                    jornadaValidator.jornadaExtraValidator(jornada);
-                    Jornada newJornada = jornadaRepository.save(jornada);
-                    return jornadaMapper.entityToDTO(newJornada);
-                }
+            if (jornada.getTipo().equals(JornadaEnum.NORMAL)) {
+                jornadaValidator.jornadaNormalValidator(jornada);
+                Jornada newJornada = jornadaRepository.save(jornada);
+                return jornadaMapper.entityToDTO(newJornada);
             }
+            else if (jornada.getTipo().equals(JornadaEnum.EXTRA)) {
+                jornadaValidator.jornadaExtraValidator(jornada);
+                Jornada newJornada = jornadaRepository.save(jornada);
+                return jornadaMapper.entityToDTO(newJornada);
             }
+        }
         catch(Exception e){
                 throw new Exception(e.getMessage());
         }
@@ -91,23 +89,24 @@ public class JornadaServiceImpl implements JornadaService {
                 if (jornadaDB.getTipo().equals(JornadaEnum.DIA_LIBRE)) {
                         jornadaValidator.diaLibreValidator(jornadaDB);
                         return jornadaMapper.entityToDTO(jornadaRepository.save(jornadaDB));
-                } else if (jornadaDB.getTipo().equals(JornadaEnum.VACACIONES)) {
-                    if (jornadaValidator.horarioValido(jornadaDB)) {
-                        return jornadaMapper.entityToDTO(jornadaRepository.save(jornadaDB));
-                    }
                 }
-                if (jornadaValidator.horarioValido(jornadaDB)) {
-                    if (jornadaDB.getTipo().equals(JornadaEnum.NORMAL)) {
-                        jornadaValidator.jornadaNormalValidator(jornadaDB);
-                        return jornadaMapper.entityToDTO(jornadaRepository.save(jornadaDB));
-                    } else if (jornadaDB.getTipo().equals(JornadaEnum.EXTRA)) {
-                        jornadaValidator.jornadaExtraValidator(jornadaDB);
-                        return jornadaMapper.entityToDTO(jornadaRepository.save(jornadaDB));
-                    } else {
-                        return null;
-                    }
+
+                jornadaValidator.horarioValido(jornadaDB);
+
+                if (jornadaDB.getTipo().equals(JornadaEnum.VACACIONES)) {
+                    return jornadaMapper.entityToDTO(jornadaRepository.save(jornadaDB));
                 }
-                return null;
+                if (jornadaDB.getTipo().equals(JornadaEnum.NORMAL)) {
+                    jornadaValidator.jornadaNormalValidator(jornadaDB);
+                    return jornadaMapper.entityToDTO(jornadaRepository.save(jornadaDB));
+                }
+                if (jornadaDB.getTipo().equals(JornadaEnum.EXTRA)) {
+                    jornadaValidator.jornadaExtraValidator(jornadaDB);
+                    return jornadaMapper.entityToDTO(jornadaRepository.save(jornadaDB));
+                }
+                else {
+                    throw new Exception("Tipo de jornada inexistente.");
+                }
             }
             else {
                 throw new Exception("Usuario no existe.");
