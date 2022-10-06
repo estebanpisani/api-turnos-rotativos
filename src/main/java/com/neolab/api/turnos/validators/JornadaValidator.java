@@ -148,7 +148,8 @@ JornadaRepository jornadaRepository;
         }
     }
     //TODO
-    //  Por cada turno no puede haber más que 2 empleados.
+    //  Por cada turno
+    //  no puede haber más que 2 empleados.
     //Validaciones según tipo
     //Normal:
     public void jornadaNormalValidator(Jornada jornada) throws Exception{

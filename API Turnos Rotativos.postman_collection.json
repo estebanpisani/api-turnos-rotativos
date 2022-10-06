@@ -66,7 +66,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"nombre\": \"Julián\",\r\n    \"apellido\": \"Gonzalez\",\r\n    \"fechaDeNacimiento\": \"2002/07/29\",\r\n    \"email\": \"julian_gon@yahoo.com\",\r\n    \"password\": 1234,\r\n    \"telefono\": \"123456\",\r\n    \"fechaAlta\": \"2020/08/27\"\r\n}",
+							"raw": "{\r\n    \"nombre\": \"Martin\",\r\n    \"apellido\": \"Gonzalez\",\r\n    \"fechaDeNacimiento\": \"2002/07/29\",\r\n    \"email\": \"julian_gon@yahoo.com\",\r\n    \"fechaAlta\": \"2020/08/27\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -158,6 +158,119 @@
 			"name": "Jornada",
 			"item": [
 				{
+					"name": "createJornadas",
+					"item": [
+						{
+							"name": "createJornadaNormal",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"entrada\": \"2022/10/14 14:00\",\r\n    \"salida\": \"2022/10/14 22:00\",\r\n    \"tipo\": \"normal\",\r\n    \"empleadoId\": 1\r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{localHost}}/api/calendario",
+									"host": [
+										"{{localHost}}"
+									],
+									"path": [
+										"api",
+										"calendario"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "createJornadaExtra",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"entrada\": \"2022/10/14 10:00\",\r\n    \"salida\": \"2022/10/14 14:00\",\r\n    \"tipo\": \"extra\",\r\n    \"empleadoId\": 1\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{localHost}}/api/calendario",
+									"host": [
+										"{{localHost}}"
+									],
+									"path": [
+										"api",
+										"calendario"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "createDiaLibre",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"entrada\": \"2022/10/16\",\r\n    \"salida\": null,\r\n    \"tipo\": \"dia libre\",\r\n    \"empleadoId\": 1\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{localHost}}/api/calendario",
+									"host": [
+										"{{localHost}}"
+									],
+									"path": [
+										"api",
+										"calendario"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "createVacaciones",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"entrada\": \"2022/10/20\",\r\n    \"salida\": \"2022/10/30\",\r\n    \"tipo\": \"vacaciones\",\r\n    \"empleadoId\": 1\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{localHost}}/api/calendario",
+									"host": [
+										"{{localHost}}"
+									],
+									"path": [
+										"api",
+										"calendario"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
 					"name": "getAllJornadas",
 					"request": {
 						"method": "GET",
@@ -237,35 +350,8 @@
 							"variable": [
 								{
 									"key": "id",
-									"value": ""
+									"value": "1"
 								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "createJornada",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"entrada\": \"2022/10/14 15:00\",\r\n    \"salida\": \"2022/10/14 23:00\",\r\n    \"tipo\": \"normal\",\r\n    \"empleadoId\": 1\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{localHost}}/api/calendario",
-							"host": [
-								"{{localHost}}"
-							],
-							"path": [
-								"api",
-								"calendario"
 							]
 						}
 					},
@@ -278,7 +364,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"fecha\": \"2022/10/06\",\r\n    \"horaEntrada\": null,\r\n    \"horaSalida\": null\r\n}",
+							"raw": "{\r\n    \"id\": 2,\r\n    \"entrada\": \"2022/10/14 15:00\",\r\n    \"salida\": \"2022/10/14 21:00\",\r\n    \"tipo\": \"NORMAL\",\r\n    \"empleadoId\": 1\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -298,7 +384,7 @@
 							"variable": [
 								{
 									"key": "id",
-									"value": ""
+									"value": "2"
 								}
 							]
 						}
@@ -323,7 +409,7 @@
 							"variable": [
 								{
 									"key": "id",
-									"value": ""
+									"value": "5"
 								}
 							]
 						}
