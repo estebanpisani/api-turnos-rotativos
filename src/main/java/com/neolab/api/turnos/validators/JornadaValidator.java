@@ -66,8 +66,8 @@ JornadaRepository jornadaRepository;
     public long obtenerHoras(Jornada jornada){
         return jornada.getEntrada().until(jornada.getSalida(), ChronoUnit.HOURS);
     }
-        //  Cada empleado no puede trabajar más de 48 horas semanales, ni menos de 30.
     public void noSuperaHorasSemanales(Jornada jornada, Empleado empleado) throws Exception {
+    // Cada empleado no puede trabajar más de 48 horas semanales, ni menos de 30.
         //Se obtiene el número de la semana del año para comparar.
         TemporalField weekNumber = WeekFields.of(Locale.getDefault()).weekOfWeekBasedYear();
         int semanaJornadaNueva = jornada.getEntrada().toLocalDate().get(weekNumber);
@@ -92,9 +92,9 @@ JornadaRepository jornadaRepository;
             }
         }
     }
-    //  Para cada fecha, un empleado (siempre que no esté de vacaciones o haya pedido día libre)
-    //  podrá cargar un turno normal, un turno extra o una combinación de ambos que no supere las 12 horas.
     public void noSuperaHorasDiarias(Jornada jornada, Empleado empleado) throws Exception {
+        //  Para cada fecha, un empleado (siempre que no esté de vacaciones o haya pedido día libre)
+        //  podrá cargar un turno normal, un turno extra o una combinación de ambos que no supere las 12 horas.
         long horasDelDia = 0;
         List<Jornada> jornadasDelDia = empleado.getJornadas()
                 .stream()
@@ -110,8 +110,8 @@ JornadaRepository jornadaRepository;
             throw new Exception("La jornada excede las 12hs diarias.");
         }
     }
-    //  Si un empleado cargó “Dia libre” no podrá trabajar durante las 24 horas correspondientes a ese día.
     public void noTieneDiaLibre(Jornada jornada, Empleado empleado) throws Exception{
+    //  Si un empleado cargó “Dia libre” no podrá trabajar durante las 24 horas correspondientes a ese día.
         if (empleado.getJornadas().stream().anyMatch(item -> item.getEntrada().toLocalDate().isEqual(jornada.getEntrada().toLocalDate()) && (item.getTipo().equals(JornadaEnum.DIA_LIBRE)))){
             throw new Exception("El empleado tiene el día libre");
         }
@@ -132,8 +132,8 @@ JornadaRepository jornadaRepository;
             throw new Exception("El empleado está de vacaciones en esa fecha.");
         }
     }
-    //  En la semana el empleado podrá tener hasta 2 días libres.
     public void tieneDiasLibresDisponibles(Jornada jornada,Empleado empleado, int maximo) throws Exception{
+    //  En la semana el empleado podrá tener hasta 2 días libres.
         //Se obtiene el número de la semana del año para comparar.
         TemporalField weekNumber = WeekFields.of(Locale.getDefault()).weekOfWeekBasedYear();
         //Se filtran días libres en la misma semana
@@ -147,9 +147,8 @@ JornadaRepository jornadaRepository;
             throw new Exception("No tiene días libres disponibles para esa semana.");
         }
     }
-    //TODO
-    //  Por cada turno
-    //  no puede haber más que 2 empleados.
+    //TODO Por cada turno no puede haber más que 2 empleados.
+
     //Validaciones según tipo
     //Normal:
     public void jornadaNormalValidator(Jornada jornada) throws Exception{
@@ -209,10 +208,4 @@ JornadaRepository jornadaRepository;
                     }
         }
     }
-    //TODO vacacionesValidator
-    //    public boolean vacacionesValidator(Jornada jornada){
-    //            return true;
-    //    }
-
-
 }

@@ -32,16 +32,15 @@ public class JornadaMapper {
         DateTimeFormatter formatterDate = DateTimeFormatter.ofPattern("yyyy/MM/dd");
         //Se crea una entidad Jornada vacía.
         Jornada jornada = new Jornada();
-
+        //Se validan los campos requeridos
         if(dto.getEmpleadoId() == null || dto.getTipo() == null || dto.getTipo().isEmpty() || dto.getEntrada() == null || dto.getEntrada().isEmpty()){
             throw new Exception("Campos requeridos.");
         }
-
         jornada.setEmpleadoId(dto.getEmpleadoId());
 
+        //Si es Día Libre se le asigna el horario de entrada y salida para que siempre sea de 24hs
         if (dto.getTipo().toUpperCase().trim().replace(" ", "_").equals(JornadaEnum.DIA_LIBRE.toString())) {
             jornada.setTipo(JornadaEnum.DIA_LIBRE);
-            //Si es Día Libre se le setea el horario de entrada y salida para que siempre sea de 24hs
             jornada.setEntrada(LocalDateTime.of(LocalDate.parse(dto.getEntrada(), formatterDate), LocalTime.of(0, 0)));
             jornada.setSalida(LocalDateTime.of(LocalDate.parse(dto.getEntrada(), formatterDate), LocalTime.of(23, 59)));
             return jornada;
@@ -50,6 +49,7 @@ public class JornadaMapper {
         if (dto.getSalida() == null || dto.getSalida().isEmpty()) {
             throw new Exception("La Fecha/hora de salida es requerida.");
         }
+        //En caso de Vacaciones se le asigna el horario de entrada y salida para que siempre sea de 24hs, solo se tiene en cuenta la fecha.
         if(dto.getTipo().toUpperCase().trim().equals(JornadaEnum.VACACIONES.toString())){
             jornada.setTipo(JornadaEnum.VACACIONES);
             jornada.setEntrada(LocalDateTime.of(LocalDate.parse(dto.getEntrada(), formatterDate), LocalTime.of(0, 0)));

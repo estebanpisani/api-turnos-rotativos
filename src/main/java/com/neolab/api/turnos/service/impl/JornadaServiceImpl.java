@@ -71,7 +71,6 @@ public class JornadaServiceImpl implements JornadaService {
                 // Se obtiene la jornada de la base de datos y se modifican sólo los datos del DTO que no son nulos y distintos.
                 DateTimeFormatter formatterHour = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm");
                 Jornada jornadaDB = opt.get();
-//            Jornada jornadaUpd = jornadaMapper.dtoToEntity(dto);
                 if (dto.getEntrada() != null) {
                     LocalDateTime horaEntrada = LocalDateTime.parse(dto.getEntrada(), formatterHour);
                     jornadaDB.setEntrada(horaEntrada);
@@ -113,8 +112,10 @@ public class JornadaServiceImpl implements JornadaService {
 
     @Override
     public List<JornadaDTO> getAllJornadas(String tipo) {
+        //Se obtienen todos los registros de jornadas de la base de datos
         List<Jornada> jornadas = jornadaRepository.findAll();
         List<JornadaDTO> dtos = new ArrayList<>();
+        //En caso de añadir un parámetro de tipo, se filtra con la API Stream
         if(tipo != null){
             List<Jornada> jornadasFiltradas = jornadas.stream().filter(item-> item.getTipo().toString().equalsIgnoreCase(tipo.trim().replace(" ","_"))).collect(Collectors.toList());
             if(jornadasFiltradas.size()>0){
@@ -127,8 +128,10 @@ public class JornadaServiceImpl implements JornadaService {
 
     @Override
     public List<JornadaDTO> getJornadasByEmpleado(Long id, String tipo) {
+        //Se obtienen todos los registros de jornadas de la base de datos con el mismo ID de Empleado
         List<Jornada> jornadas = jornadaRepository.findByEmpleadoId(id);
         List<JornadaDTO> dtos = new ArrayList<>();
+        //En caso de añadir un parámetro de tipo, se filtra con la API Stream
         if(tipo != null){
             List<Jornada> jornadasFiltradas = jornadas.stream().filter(item-> item.getTipo().toString().equalsIgnoreCase(tipo.trim().replace(" ","_"))).collect(Collectors.toList());
             if(jornadasFiltradas.size()>0){
@@ -145,18 +148,6 @@ public class JornadaServiceImpl implements JornadaService {
         Optional<Jornada> opt = jornadaRepository.findById(id);
         if(opt.isPresent()){
             return jornadaMapper.entityToDTO(opt.get());
-        }
-        return null;
-    }
-    public String getEmpleadoByJornadaId(Long id) {
-        Optional<Jornada> opt = jornadaRepository.findById(id);
-        if(opt.isPresent()){
-            String response = opt.get().getEmpleado().getNombre();
-            if(response != null){
-                return response;
-            }else{
-                System.out.println("Empleado nulo.");
-            }
         }
         return null;
     }
