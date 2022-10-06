@@ -4,8 +4,8 @@ import com.neolab.api.turnos.dto.JornadaDTO;
 import java.util.List;
 
 public interface JornadaService {
-    JornadaDTO createJornada(JornadaDTO dto);
-    JornadaDTO updateJornada(Long id, JornadaDTO dto);
+    JornadaDTO createJornada(JornadaDTO dto) throws Exception;
+    JornadaDTO updateJornada(Long id, JornadaDTO dto) throws Exception;
     List<JornadaDTO> getAllJornadas();
     List<JornadaDTO> getJornadasByEmpleado(Long id, String tipo);
     JornadaDTO getJornadaById(Long id);
