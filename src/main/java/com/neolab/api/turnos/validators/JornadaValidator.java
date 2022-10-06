@@ -204,7 +204,7 @@ JornadaRepository jornadaRepository;
         }
     }
     //Extra
-    public boolean jornadaExtraValidator(Jornada jornada) {
+    public void jornadaExtraValidator(Jornada jornada) throws Exception {
         //Se verifica si no tiene menos de 2hs ni más de 6hs
         if (obtenerHoras(jornada) >= 2 && obtenerHoras(jornada) <= 6) {
             Empleado empleado = empleadoRepository.findById(jornada.getEmpleadoId()).get();
@@ -215,38 +215,30 @@ JornadaRepository jornadaRepository;
                         if (this.horarioDisponible(jornada)) {
                             if (noSuperaHorasSemanales(jornada, empleado)) {
                                 if (noSuperaHorasDiarias(jornada, empleado)) {
-                                    System.out.println("Jornada Creada.");
-                                    return true;
+                                    System.out.println("Jornada Ok.");
                                 } else {
-                                    System.out.println("La jornada excede las 12hs diarias.");
-                                    return false;
+                                    throw new Exception("La jornada excede las 12hs diarias.");
                                 }
                             } else {
-                                System.out.println("No puede trabajar más de 48hs semanales.");
-                                return false;
+                                throw new Exception("No puede trabajar más de 48hs semanales.");
                             }
                         } else {
-                            System.out.println("Ya hay una jornada en ese horario.");
-                            return false;
+                            throw new Exception("Ya hay una jornada en ese horario.");
                         }
                     } else {
-                        System.out.println("El empleado tiene el día libre");
-                        return false;
+                        throw new Exception("El empleado tiene el día libre");
                     }
                 }
                 else{
-                    System.out.println("El empleado está de vacaciones en esa fecha.");
-                    return false;
+                    throw new Exception("El empleado está de vacaciones en esa fecha.");
                 }
             } else {
                 //Si no tiene ninguna jornada, se crea exitosamente.
-                System.out.println("Jornada Creada.");
-                return true;
+                System.out.println("Jornada Ok.");
             }
         }
         else {
-            System.out.println("No tiene entre 2 y 6hs");
-            return false;
+            throw new Exception("No tiene entre 2 y 6hs");
         }
     }
     //Día Libre

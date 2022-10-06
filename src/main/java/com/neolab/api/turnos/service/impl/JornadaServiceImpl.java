@@ -52,10 +52,9 @@ public class JornadaServiceImpl implements JornadaService {
                     return jornadaMapper.entityToDTO(newJornada);
                 }
                 else if (jornada.getTipo().equals(JornadaEnum.EXTRA)) {
-                    if (jornadaValidator.jornadaExtraValidator(jornada)) {
-                        Jornada newJornada = jornadaRepository.save(jornada);
-                        return jornadaMapper.entityToDTO(newJornada);
-                    }
+                    jornadaValidator.jornadaExtraValidator(jornada);
+                    Jornada newJornada = jornadaRepository.save(jornada);
+                    return jornadaMapper.entityToDTO(newJornada);
                 }
             }
             }
@@ -67,53 +66,55 @@ public class JornadaServiceImpl implements JornadaService {
 
     @Override
     public JornadaDTO updateJornada(Long id, JornadaDTO dto) throws Exception {
-        //Se busca la entidad en la base de datos por su id.
-        Optional<Jornada> opt = jornadaRepository.findById(id);
-        if(opt.isPresent()){
-            // Se obtiene la jornada de la base de datos y se modifican sólo los datos del DTO que no son nulos y distintos.
-            DateTimeFormatter formatterDate = DateTimeFormatter.ofPattern("yyyy/MM/dd");
-            DateTimeFormatter formatterHour = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm");
-            Jornada jornadaDB = opt.get();
-
+        try {
+            //Se busca la entidad en la base de datos por su id.
+            Optional<Jornada> opt = jornadaRepository.findById(id);
+            if (opt.isPresent()) {
+                // Se obtiene la jornada de la base de datos y se modifican sólo los datos del DTO que no son nulos y distintos.
+                DateTimeFormatter formatterDate = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+                DateTimeFormatter formatterHour = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm");
+                Jornada jornadaDB = opt.get();
 //            Jornada jornadaUpd = jornadaMapper.dtoToEntity(dto);
-            if(dto.getFecha() != null){
-                LocalDate fecha = LocalDate.parse(dto.getFecha(), formatterDate);
-                jornadaDB.setFecha(fecha);
-            }
-            if(dto.getHoraEntrada() != null){
-                LocalDateTime horaEntrada = LocalDateTime.parse(dto.getHoraEntrada(), formatterHour);
-                jornadaDB.setHoraEntrada(horaEntrada);
-            }
-            if(dto.getHoraSalida() != null){
-                LocalDateTime horaSalida = LocalDateTime.parse(dto.getHoraSalida(), formatterHour);
-                jornadaDB.setHoraSalida(horaSalida);
-            }
-            if (jornadaDB.getTipo().equals(JornadaEnum.DIA_LIBRE)) {
-                if(jornadaValidator.diaLibreValidator(jornadaDB)) {
-                    return jornadaMapper.entityToDTO(jornadaRepository.save(jornadaDB));
+                if (dto.getFecha() != null) {
+                    LocalDate fecha = LocalDate.parse(dto.getFecha(), formatterDate);
+                    jornadaDB.setFecha(fecha);
                 }
+                if (dto.getHoraEntrada() != null) {
+                    LocalDateTime horaEntrada = LocalDateTime.parse(dto.getHoraEntrada(), formatterHour);
+                    jornadaDB.setHoraEntrada(horaEntrada);
+                }
+                if (dto.getHoraSalida() != null) {
+                    LocalDateTime horaSalida = LocalDateTime.parse(dto.getHoraSalida(), formatterHour);
+                    jornadaDB.setHoraSalida(horaSalida);
+                }
+                if (jornadaDB.getTipo().equals(JornadaEnum.DIA_LIBRE)) {
+                    if (jornadaValidator.diaLibreValidator(jornadaDB)) {
+                        return jornadaMapper.entityToDTO(jornadaRepository.save(jornadaDB));
+                    }
+                } else if (jornadaDB.getTipo().equals(JornadaEnum.VACACIONES)) {
+                    if (jornadaValidator.horarioValido(jornadaDB)) {
+                        return jornadaMapper.entityToDTO(jornadaRepository.save(jornadaDB));
+                    }
+                }
+                if (jornadaValidator.horarioValido(jornadaDB)) {
+                    if (jornadaDB.getTipo().equals(JornadaEnum.NORMAL)) {
+                        jornadaValidator.jornadaNormalValidator(jornadaDB);
+                        return jornadaMapper.entityToDTO(jornadaRepository.save(jornadaDB));
+                    } else if (jornadaDB.getTipo().equals(JornadaEnum.EXTRA)) {
+                        jornadaValidator.jornadaExtraValidator(jornadaDB);
+                        return jornadaMapper.entityToDTO(jornadaRepository.save(jornadaDB));
+                    } else {
+                        return null;
+                    }
+                }
+                return null;
             }
-            else if(jornadaDB.getTipo().equals(JornadaEnum.VACACIONES)){
-                if(jornadaValidator.horarioValido(jornadaDB)) {
-                    return jornadaMapper.entityToDTO(jornadaRepository.save(jornadaDB));
-                }
+            else {
+                throw new Exception("Usuario no existe.");
             }
-            if(jornadaValidator.horarioValido(jornadaDB)){
-                if(jornadaDB.getTipo().equals(JornadaEnum.NORMAL)) {
-                    jornadaValidator.jornadaNormalValidator(jornadaDB);
-                    return jornadaMapper.entityToDTO(jornadaRepository.save(jornadaDB));
-                }
-                else if (jornadaDB.getTipo().equals(JornadaEnum.EXTRA) && jornadaValidator.jornadaExtraValidator(jornadaDB)){
-                    return jornadaMapper.entityToDTO(jornadaRepository.save(jornadaDB));
-                }
-                else {
-                    return null;
-                }
-            }
-            return null;
         }
-        else{
-            return null;
+        catch(Exception e){
+            throw new Exception(e.getMessage());
         }
     }
 
