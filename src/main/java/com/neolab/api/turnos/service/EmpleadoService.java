@@ -7,7 +7,7 @@ import java.util.List;
 public interface EmpleadoService {
 
     EmpleadoDTO createEmpleado(EmpleadoDTO dto);
-    EmpleadoDTO updateEmpleado(Long id, EmpleadoDTO dto);
+    EmpleadoDTO updateEmpleado(Long id, EmpleadoDTO dto) throws Exception;
     List<EmpleadoDTO> getEmpleados();
     EmpleadoDTO getEmpleadoById(Long id);
     void deleteEmpleado(Long id);

@@ -24,45 +24,49 @@ public class EmpleadoServiceImpl implements EmpleadoService {
 
     @Override
     public EmpleadoDTO createEmpleado(EmpleadoDTO dto) {
+        //Crea una entidad Empleado con lo datos del DTO y se guarda en la base de datos.
+        //La clase EmpleadoMapper se encarga de hacer la conversión de tipos de datos según se requiera.
         Empleado newEmpleado = empleadoRepository.save(empleadoMapper.dtoToEntity(dto));
-        EmpleadoDTO response = empleadoMapper.entityToDTO( newEmpleado);
-        return response;
+        return empleadoMapper.entityToDTO(newEmpleado);
     }
 
     @Override
-    public EmpleadoDTO updateEmpleado(Long id, EmpleadoDTO dto) {
-        // Se verifica si el empleado a modificar existe
-        Optional<Empleado> opt = empleadoRepository.findById(id);
-        if(opt.isPresent()){
-        // Se obtiene el empleado de la base de datos y se modifican sólo los datos del DTO que no son nulos.
-            Empleado empleado = opt.get();
-            Empleado newEmpleado = empleadoMapper.dtoToEntity(dto);
-            if(newEmpleado.getNombre() != null){
-                empleado.setNombre(newEmpleado.getNombre());}
-            if(newEmpleado.getApellido() != null){
-                empleado.setApellido(newEmpleado.getApellido());
+    public EmpleadoDTO updateEmpleado(Long id, EmpleadoDTO dto) throws Exception {
+        try {
+            // Se verifica si el empleado a modificar existe
+            Optional<Empleado> opt = empleadoRepository.findById(id);
+            if (opt.isPresent()) {
+                // Se obtiene el empleado de la base de datos y se modifican sólo los datos del DTO que no son nulos.
+                Empleado empleado = opt.get();
+                Empleado newEmpleado = empleadoMapper.dtoToEntity(dto);
+                if (newEmpleado.getNombre() != null) {
+                    empleado.setNombre(newEmpleado.getNombre());
+                }
+                if (newEmpleado.getApellido() != null) {
+                    empleado.setApellido(newEmpleado.getApellido());
+                }
+                if (newEmpleado.getEmail() != null) {
+                    empleado.setEmail(newEmpleado.getEmail());
+                }
+                if (newEmpleado.getFechaDeNacimiento() != null) {
+                    empleado.setFechaDeNacimiento(newEmpleado.getFechaDeNacimiento());
+                }
+                //Se guarda en la base de datos y se retorna el empleado actualizado.
+                return empleadoMapper.entityToDTO(empleadoRepository.save(empleado));
+            } else {
+                //En caso de no encontrarse el empleado, ahorra una excepción.
+                throw new Exception("Usuario no existe.");
             }
-            if(newEmpleado.getEmail() != null){
-            empleado.setEmail(newEmpleado.getEmail());
-            }
-            if(newEmpleado.getFechaDeNacimiento() != null){
-                empleado.setFechaDeNacimiento(newEmpleado.getFechaDeNacimiento());
-            }
-
-            EmpleadoDTO response = empleadoMapper.entityToDTO(empleadoRepository.save(empleado));
-            return response;
+        }catch(Exception e){
+            throw new Exception(e.getMessage());
         }
-        //En caso de no encontrarse el empleado, se devuelve null.
-        return null;
     }
-
     @Override
     public List<EmpleadoDTO> getEmpleados() {
         List<Empleado> empleados = empleadoRepository.findAll();
         List<EmpleadoDTO> dtos = empleadoMapper.entityListToDTOList(empleados);
         return dtos;
     }
-
     @Override
     public EmpleadoDTO getEmpleadoById(Long id) {
         Optional<Empleado> opt = empleadoRepository.findById(id);

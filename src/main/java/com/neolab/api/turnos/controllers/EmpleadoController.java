@@ -52,9 +52,14 @@ public class EmpleadoController {
     // Recibe los datos a modificar mediante un DTO en el body y el ID de referencia como path variable.
     @PutMapping("/{id}")
     public ResponseEntity<?> updateEmpleado(@PathVariable Long id, @RequestBody EmpleadoDTO dto){
-        EmpleadoDTO updatedEmpleado = empleadoService.updateEmpleado(id, dto);
-        if(updatedEmpleado != null){
-            return new ResponseEntity<>(updatedEmpleado, HttpStatus.OK);
+        try {
+            EmpleadoDTO updatedEmpleado = empleadoService.updateEmpleado(id, dto);
+            if(updatedEmpleado != null){
+                return new ResponseEntity<>(updatedEmpleado, HttpStatus.OK);
+            }
+        }
+        catch(Exception e){
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>("Empleado no encontrado", HttpStatus.BAD_REQUEST);
     }
