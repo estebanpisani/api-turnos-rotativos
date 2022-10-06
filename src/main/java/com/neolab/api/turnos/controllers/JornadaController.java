@@ -17,8 +17,8 @@ public class JornadaController {
 
     //Endpoint para obtener todas las jornadas de la base de datos.
     @GetMapping()
-    public ResponseEntity<?> getAllJornadas(){
-        List<JornadaDTO> dtos = jornadaService.getAllJornadas();
+    public ResponseEntity<?> getAllJornadas(@RequestParam(required = false) String tipo){
+        List<JornadaDTO> dtos = jornadaService.getAllJornadas(tipo);
         if(dtos!=null){
             return new ResponseEntity<>(dtos, HttpStatus.OK);
         }

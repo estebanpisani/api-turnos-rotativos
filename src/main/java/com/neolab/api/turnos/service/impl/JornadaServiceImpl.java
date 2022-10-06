@@ -112,8 +112,16 @@ public class JornadaServiceImpl implements JornadaService {
     }
 
     @Override
-    public List<JornadaDTO> getAllJornadas() {
+    public List<JornadaDTO> getAllJornadas(String tipo) {
         List<Jornada> jornadas = jornadaRepository.findAll();
+        List<JornadaDTO> dtos = new ArrayList<>();
+        if(tipo != null){
+            List<Jornada> jornadasFiltradas = jornadas.stream().filter(item-> item.getTipo().toString().equalsIgnoreCase(tipo.trim().replace(" ","_"))).collect(Collectors.toList());
+            if(jornadasFiltradas.size()>0){
+                dtos = jornadaMapper.entityListToDTOList(jornadasFiltradas);
+            }
+            return dtos;
+        }
         return jornadaMapper.entityListToDTOList(jornadas);
     }
 
