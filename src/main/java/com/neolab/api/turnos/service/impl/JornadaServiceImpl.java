@@ -32,65 +32,14 @@ public class JornadaServiceImpl implements JornadaService {
     @Override
     public JornadaDTO createJornada(JornadaDTO dto) throws Exception {
         try{
-        //Se crea una entidad con los datos que llegan desde el DTO.
+            //Se crea una entidad nueva con los datos que llegan desde el DTO.
+            //Dentro de la clase JornadaMapper se realizan las validaciones por cada tipo
             Jornada jornada = jornadaMapper.dtoToEntity(dto);
-
-            //Se validan los datos según el tipo de jornada.
-            if (jornada.getTipo().equals(JornadaEnum.DIA_LIBRE)) {
-//                jornadaValidator.diaLibreValidator(jornada);
-                Jornada newJornada = jornadaRepository.save(jornada);
-                return jornadaMapper.entityToDTO(newJornada);
-            }
-            //Si es vacaciones, jornada normal o extra, se verifica si la jornada tiene un formato válido.
-            jornadaValidator.horarioValido(jornada);
-
-            if(jornada.getTipo().equals(JornadaEnum.VACACIONES)){
-                Jornada newJornada = jornadaRepository.save(jornada);
-                return jornadaMapper.entityToDTO(newJornada);
-            }
-            if (jornada.getTipo().equals(JornadaEnum.NORMAL)) {
-                if(jornadaValidator.obtenerHoras(jornada)>=6 && jornadaValidator.obtenerHoras(jornada)<=8) {
-                    //Verifica si no hay otra jornada en ese horario
-                    jornadaValidator.horarioDisponible(jornada);
-                    if(jornada.getEmpleados().size()>0){
-                        for (Empleado empleado: jornada.getEmpleados()) {
-                            jornadaValidator.jornadaNormalValidator(jornada, empleado);
-                        }
-                    }
-                    Jornada newJornada = jornadaRepository.save(jornada);
-                    return jornadaMapper.entityToDTO(newJornada);
-                }
-                else{
-                    throw new Exception("No tiene entre 6 y 8hs");
-                }
-            }
-            else if (jornada.getTipo().equals(JornadaEnum.EXTRA)) {
-                if (jornadaValidator.obtenerHoras(jornada) >= 2 && jornadaValidator.obtenerHoras(jornada) <= 6) {
-                    jornadaValidator.horarioDisponible(jornada);
-                    if(jornada.getEmpleados().size()>0){
-                        jornada.getEmpleados().stream().forEach(empleado -> {
-                            try {
-                                jornadaValidator.jornadaExtraValidator(jornada, empleado);
-                            } catch (Exception e) {
-                                throw new RuntimeException(e.getMessage());
-                            }
-                        });
-    //                        for (Empleado empleado: jornada.getEmpleados()) {
-    //                            jornadaValidator.jornadaExtraValidator(jornada, empleado);
-    //                        }
-                    }
-                    Jornada newJornada = jornadaRepository.save(jornada);
-                    return jornadaMapper.entityToDTO(newJornada);
-                }
-                else {
-                    throw new Exception("No tiene entre 2 y 6hs");
-                }
-            }
+            return jornadaMapper.entityToDTO(jornadaRepository.save(jornada));
         }
         catch(Exception e){
                 throw new Exception(e.getMessage());
         }
-        return null;
     }
 
     @Override
@@ -102,7 +51,7 @@ public class JornadaServiceImpl implements JornadaService {
                 // Se obtiene la jornada de la base de datos y se modifican solo los datos del DTO que no son nulos.
                 DateTimeFormatter formatterHour = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm");
                 Jornada jornadaDB = opt.get();
-                jornadaValidator.horarioDisponible(jornadaDB);
+
                 if(dto.getEmpleadosId().size()>0 && dto.getEmpleadosId().size()<=2) {
                     List<Empleado> empleados = new ArrayList<>();
                     for (Long empleadosId : dto.getEmpleadosId()) {
@@ -115,7 +64,8 @@ public class JornadaServiceImpl implements JornadaService {
                         }
                     }
                     jornadaDB.setEmpleados(empleados);
-                }else{
+                }
+                else{
                     throw new Exception("Solo se permiten 2 empleados máximo.");
                 }
                 if (dto.getEntrada() != null) {
@@ -126,12 +76,13 @@ public class JornadaServiceImpl implements JornadaService {
                     LocalDateTime horaSalida = LocalDateTime.parse(dto.getSalida(), formatterHour);
                     jornadaDB.setSalida(horaSalida);
                 }
+                jornadaValidator.horarioValido(jornadaDB);
+                jornadaValidator.horarioDisponible(jornadaDB);
+
                 if (jornadaDB.getTipo().equals(JornadaEnum.DIA_LIBRE)) {
 //                        jornadaValidator.diaLibreValidator(jornadaDB);
                         return jornadaMapper.entityToDTO(jornadaRepository.save(jornadaDB));
                 }
-
-                jornadaValidator.horarioValido(jornadaDB);
 
                 if (jornadaDB.getTipo().equals(JornadaEnum.VACACIONES)) {
                     return jornadaMapper.entityToDTO(jornadaRepository.save(jornadaDB));
@@ -145,8 +96,13 @@ public class JornadaServiceImpl implements JornadaService {
                     }
                 }
                 if (jornadaDB.getTipo().equals(JornadaEnum.EXTRA)) {
+                    if(jornadaValidator.obtenerHoras(jornadaDB)>=2 && jornadaValidator.obtenerHoras(jornadaDB)<=6) {
 //                    jornadaValidator.jornadaExtraValidator(jornadaDB);
                     return jornadaMapper.entityToDTO(jornadaRepository.save(jornadaDB));
+                    }
+                    else{
+                        throw new Exception("No tiene entre 2 y 6hs");
+                    }
                 }
                 else {
                     throw new Exception("Tipo de jornada inexistente.");

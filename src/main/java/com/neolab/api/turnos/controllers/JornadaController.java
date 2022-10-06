@@ -25,9 +25,10 @@ public class JornadaController {
         return new ResponseEntity<>("No hay jornadas laborales disponibles", HttpStatus.BAD_REQUEST);
     }
     //Endpoint para obtener todas las jornadas del mismo empleado.
+    //Se puede agregar una query para filtrar por tipo.
     @GetMapping("/{id}")
-    public ResponseEntity<?> getJornadasByEmpleadoId(@PathVariable Long id, @RequestParam(required = false) String tipo){
-        List<JornadaDTO> dtos = jornadaService.getJornadasByEmpleado(id, tipo);
+    public ResponseEntity<?> getJornadasByEmpleadoId(@PathVariable Long idEmpleado, @RequestParam(required = false) String tipo){
+        List<JornadaDTO> dtos = jornadaService.getJornadasByEmpleado(idEmpleado, tipo);
         if(dtos!=null){
             return new ResponseEntity<>(dtos, HttpStatus.OK);
         }
@@ -37,6 +38,7 @@ public class JornadaController {
     @PostMapping()
     public ResponseEntity<?> createJornada(@RequestBody JornadaDTO dto) throws Exception{
         try{
+            //La creación de la jornada se delega a la clase JornadaService.
             JornadaDTO response = jornadaService.createJornada(dto);
             return new ResponseEntity<>(response, HttpStatus.CREATED);
         }
