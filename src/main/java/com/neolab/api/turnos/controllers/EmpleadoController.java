@@ -1,13 +1,13 @@
 package com.neolab.api.turnos.controllers;
 
 import com.neolab.api.turnos.dto.EmpleadoDTO;
-import com.neolab.api.turnos.entity.Empleado;
 import com.neolab.api.turnos.service.impl.EmpleadoServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -34,9 +34,14 @@ public class EmpleadoController {
     }
     @PostMapping()
     public ResponseEntity<?> createEmpleado(@RequestBody EmpleadoDTO dto){
-        EmpleadoDTO newEmpleado = empleadoService.createEmpleado(dto);
-        if(newEmpleado != null){
-        return new ResponseEntity<>(newEmpleado, HttpStatus.OK);
+        try {
+            EmpleadoDTO newEmpleado = empleadoService.createEmpleado(dto);
+            if (newEmpleado != null) {
+                return new ResponseEntity<>(newEmpleado, HttpStatus.OK);
+            }
+        }
+        catch(Exception e){
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>("Error al crear empleado", HttpStatus.BAD_REQUEST);
     }

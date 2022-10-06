@@ -19,23 +19,10 @@ public class Empleado {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-//    @NotNull
-//    @NotBlank
     private String nombre;
-//    @NotNull
-//    @NotBlank
     private String apellido;
-//    @NotNull
-//    @NotBlank
     private LocalDate fechaDeNacimiento;
-//    @NotNull
-//    @NotBlank
-//    @Email
     private String email;
-//    @NotNull
-//    @NotBlank
-    private String password;
-    private String telefono;
     private LocalDate fechaAlta;
     private LocalDate fechaBaja;
 
@@ -45,13 +32,12 @@ public class Empleado {
     public Empleado() {
     }
 
-    public Empleado(Long id, String nombre, String apellido, LocalDate fechaDeNacimiento, String email, String password, LocalDate fechaAlta, LocalDate fechaBaja) {
+    public Empleado(Long id, String nombre, String apellido, LocalDate fechaDeNacimiento, String email, LocalDate fechaAlta, LocalDate fechaBaja) {
         this.id = id;
         this.nombre = nombre;
         this.apellido = apellido;
         this.fechaDeNacimiento = fechaDeNacimiento;
         this.email = email;
-        this.password = password;
         this.fechaAlta = fechaAlta;
         this.fechaBaja = fechaBaja;
     }

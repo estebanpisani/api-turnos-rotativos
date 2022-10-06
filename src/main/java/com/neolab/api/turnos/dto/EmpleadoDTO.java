@@ -2,6 +2,9 @@ package com.neolab.api.turnos.dto;
 
 import lombok.Data;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
 @Data
 public class EmpleadoDTO {
     private Long id;
@@ -9,8 +12,6 @@ public class EmpleadoDTO {
     private String apellido;
     private String fechaDeNacimiento;
     private String email;
-    private String password;
-    private String telefono;
     private String fechaAlta;
     private String fechaBaja;
 }

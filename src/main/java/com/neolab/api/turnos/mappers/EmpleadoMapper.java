@@ -19,8 +19,6 @@ public class EmpleadoMapper {
         dto.setNombre(empleado.getNombre());
         dto.setApellido(empleado.getApellido());
         dto.setEmail(empleado.getEmail());
-        dto.setPassword(empleado.getPassword());
-        dto.setTelefono(empleado.getTelefono());
         dto.setFechaDeNacimiento(empleado.getFechaDeNacimiento().format(formatter));
         dto.setFechaAlta(empleado.getFechaAlta().format(formatter));
 
@@ -29,17 +27,21 @@ public class EmpleadoMapper {
     public Empleado dtoToEntity(EmpleadoDTO dto){
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
         Empleado empleado = new Empleado();
-
         empleado.setNombre(dto.getNombre());
         empleado.setApellido(dto.getApellido());
         empleado.setEmail(dto.getEmail());
-        empleado.setPassword(dto.getPassword());
-        empleado.setTelefono(dto.getTelefono());
-        LocalDate fechaDeNacimiento = LocalDate.parse(dto.getFechaDeNacimiento(), formatter );
-        LocalDate fechaDeAlta = LocalDate.parse(dto.getFechaAlta(), formatter );
-        empleado.setFechaDeNacimiento(fechaDeNacimiento);
-        empleado.setFechaAlta(fechaDeAlta);
-
+        if(dto.getFechaDeNacimiento()!=null) {
+            LocalDate fechaDeNacimiento = LocalDate.parse(dto.getFechaDeNacimiento(), formatter);
+            empleado.setFechaDeNacimiento(fechaDeNacimiento);
+        }
+        if(dto.getFechaAlta() != null) {
+            LocalDate fechaDeAlta = LocalDate.parse(dto.getFechaAlta(), formatter);
+            empleado.setFechaAlta(fechaDeAlta);
+        }
+        if(dto.getFechaBaja() != null) {
+            LocalDate fechaBaja = LocalDate.parse(dto.getFechaBaja(), formatter);
+            empleado.setFechaBaja(fechaBaja);
+        }
         return empleado;
     }
     public List<EmpleadoDTO> entityListToDTOList(List<Empleado> empleados){

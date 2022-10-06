@@ -8,6 +8,7 @@ import com.neolab.api.turnos.service.EmpleadoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.validation.Valid;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -24,7 +25,7 @@ public class EmpleadoServiceImpl implements EmpleadoService {
     @Override
     public EmpleadoDTO createEmpleado(EmpleadoDTO dto) {
         Empleado newEmpleado = empleadoRepository.save(empleadoMapper.dtoToEntity(dto));
-        EmpleadoDTO response = empleadoMapper.entityToDTO(newEmpleado);
+        EmpleadoDTO response = empleadoMapper.entityToDTO( newEmpleado);
         return response;
     }
 
@@ -36,7 +37,6 @@ public class EmpleadoServiceImpl implements EmpleadoService {
         // Se obtiene el empleado de la base de datos y se modifican sólo los datos del DTO que no son nulos.
             Empleado empleado = opt.get();
             Empleado newEmpleado = empleadoMapper.dtoToEntity(dto);
-
             if(newEmpleado.getNombre() != null){
                 empleado.setNombre(newEmpleado.getNombre());}
             if(newEmpleado.getApellido() != null){
@@ -44,12 +44,6 @@ public class EmpleadoServiceImpl implements EmpleadoService {
             }
             if(newEmpleado.getEmail() != null){
             empleado.setEmail(newEmpleado.getEmail());
-            }
-            if(newEmpleado.getTelefono() != null){
-                empleado.setTelefono(newEmpleado.getTelefono());
-            }
-            if(newEmpleado.getPassword() != null){
-                empleado.setPassword(newEmpleado.getPassword());
             }
             if(newEmpleado.getFechaDeNacimiento() != null){
                 empleado.setFechaDeNacimiento(newEmpleado.getFechaDeNacimiento());

@@ -17,7 +17,7 @@ public class JornadaController {
 
     //Endpoint para obtener todas las jornadas de la base de datos.
     @GetMapping()
-    public ResponseEntity<?> obtenerJornadas(){
+    public ResponseEntity<?> getAllJornadas(){
         List<JornadaDTO> dtos = jornadaService.getAllJornadas();
         if(dtos!=null){
             return new ResponseEntity<>(dtos, HttpStatus.OK);
@@ -26,20 +26,12 @@ public class JornadaController {
     }
     //Endpoint para obtener todas las jornadas del mismo empleado.
     @GetMapping("/{id}")
-    public ResponseEntity<?> obtenerJornadasPorEmpleado(@PathVariable Long id, @RequestParam(required = false) String tipo){
+    public ResponseEntity<?> getJornadasByEmpleadoId(@PathVariable Long id, @RequestParam(required = false) String tipo){
         List<JornadaDTO> dtos = jornadaService.getJornadasByEmpleado(id, tipo);
         if(dtos!=null){
             return new ResponseEntity<>(dtos, HttpStatus.OK);
         }
         return new ResponseEntity<>("No hay jornadas laborales disponibles", HttpStatus.BAD_REQUEST);
-    }
-    @GetMapping("/{id}/empleado")
-    public ResponseEntity<?> obtenerEmpleadoPorJornada(@PathVariable Long id){
-        String nombre = jornadaService.getEmpleadoByJornadaId(id);
-        if(nombre!=null){
-            return new ResponseEntity<>(nombre, HttpStatus.OK);
-        }
-        return new ResponseEntity<>("No hay empleado en esa jornada", HttpStatus.BAD_REQUEST);
     }
     //Endpoint para crear una nueva jornada. Recibe un DTO en el body de la request.
     @PostMapping()
