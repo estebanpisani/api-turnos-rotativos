@@ -21,7 +21,6 @@ public class Jornada {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-//    protected LocalDate fecha;
     protected LocalDateTime entrada;
     protected LocalDateTime salida;
     private Enum<JornadaEnum> tipo;
@@ -29,8 +28,6 @@ public class Jornada {
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "empleado_id", insertable = false, updatable = false)
     protected Empleado empleado;
-//    @NotNull
-//    @NotBlank
     @Column(name="empleado_id", nullable = false)
     private Long empleadoId;
 

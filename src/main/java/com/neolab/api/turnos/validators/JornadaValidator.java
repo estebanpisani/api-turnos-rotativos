@@ -147,7 +147,9 @@ JornadaRepository jornadaRepository;
             throw new Exception("No tiene días libres disponibles para esa semana.");
         }
     }
-    //Validar jornada según tipo
+    //TODO
+    //  Por cada turno no puede haber más que 2 empleados.
+    //Validaciones según tipo
     //Normal:
     public void jornadaNormalValidator(Jornada jornada) throws Exception{
         //Se verifica si no tiene menos de 6hs ni más de 8hs
@@ -211,6 +213,5 @@ JornadaRepository jornadaRepository;
     //            return true;
     //    }
 
-//TODO
-//  Por cada turno no puede haber más que 2 empleados.
+
 }

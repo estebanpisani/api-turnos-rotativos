@@ -1,0 +1,336 @@
+{
+	"info": {
+		"_postman_id": "1e212aa8-590f-4d67-9912-234e1155a500",
+		"name": "API Turnos Rotativos",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "19697736"
+	},
+	"item": [
+		{
+			"name": "Empleado",
+			"item": [
+				{
+					"name": "getAllEmpleados",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{localHost}}/api/empleados",
+							"host": [
+								"{{localHost}}"
+							],
+							"path": [
+								"api",
+								"empleados"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getEmpleadoById",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{localHost}}/api/empleados/:id",
+							"host": [
+								"{{localHost}}"
+							],
+							"path": [
+								"api",
+								"empleados",
+								":id"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": null,
+									"disabled": true
+								}
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": null
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "createEmpleado",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"nombre\": \"Julián\",\r\n    \"apellido\": \"Gonzalez\",\r\n    \"fechaDeNacimiento\": \"2002/07/29\",\r\n    \"email\": \"julian_gon@yahoo.com\",\r\n    \"password\": 1234,\r\n    \"telefono\": \"123456\",\r\n    \"fechaAlta\": \"2020/08/27\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{localHost}}/api/empleados",
+							"host": [
+								"{{localHost}}"
+							],
+							"path": [
+								"api",
+								"empleados"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "updateEmpleado",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"nombre\": \"Martín\",\r\n    \"apellido\": \"Gonzalez\",\r\n    \"fechaDeNacimiento\": \"2002/07/26\",\r\n    \"email\": \"martin_gon@yahoo.com\",\r\n    \"password\": 1235,\r\n    \"telefono\": \"123222\",\r\n    \"fechaAlta\": \"2020/09/28\",\r\n    \"fechaBaja\": \"2022/07/28\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{localHost}}/api/empleados/:id",
+							"host": [
+								"{{localHost}}"
+							],
+							"path": [
+								"api",
+								"empleados",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteEmpleadoById",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{localHost}}/api/empleados/:id",
+							"host": [
+								"{{localHost}}"
+							],
+							"path": [
+								"api",
+								"empleados",
+								":id"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": null,
+									"disabled": true
+								}
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": null
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Jornada",
+			"item": [
+				{
+					"name": "getAllJornadas",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{localHost}}/api/calendario",
+							"host": [
+								"{{localHost}}"
+							],
+							"path": [
+								"api",
+								"calendario"
+							],
+							"query": [
+								{
+									"key": "tipo",
+									"value": "normal",
+									"disabled": true
+								},
+								{
+									"key": "tipo",
+									"value": "dia libre",
+									"disabled": true
+								},
+								{
+									"key": "tipo",
+									"value": "extra",
+									"disabled": true
+								},
+								{
+									"key": "tipo",
+									"value": "vacaciones",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getJornadasByEmpleadoId",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{localHost}}/api/calendario/:id",
+							"host": [
+								"{{localHost}}"
+							],
+							"path": [
+								"api",
+								"calendario",
+								":id"
+							],
+							"query": [
+								{
+									"key": "tipo",
+									"value": "normal",
+									"disabled": true
+								},
+								{
+									"key": "tipo",
+									"value": "dia libre",
+									"disabled": true
+								},
+								{
+									"key": "tipo",
+									"value": "extra",
+									"disabled": true
+								},
+								{
+									"key": "tipo",
+									"value": "vacaciones",
+									"disabled": true
+								}
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "createJornada",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"entrada\": \"2022/10/14 15:00\",\r\n    \"salida\": \"2022/10/14 23:00\",\r\n    \"tipo\": \"normal\",\r\n    \"empleadoId\": 1\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{localHost}}/api/calendario",
+							"host": [
+								"{{localHost}}"
+							],
+							"path": [
+								"api",
+								"calendario"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "updateJornada",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"fecha\": \"2022/10/06\",\r\n    \"horaEntrada\": null,\r\n    \"horaSalida\": null\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{localHost}}/api/calendario/:id",
+							"host": [
+								"{{localHost}}"
+							],
+							"path": [
+								"api",
+								"calendario",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteJornada",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{localHost}}/api/calendario/:id",
+							"host": [
+								"{{localHost}}"
+							],
+							"path": [
+								"api",
+								"calendario",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
