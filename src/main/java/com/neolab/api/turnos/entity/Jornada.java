@@ -24,7 +24,6 @@ public class Jornada {
     private Long id;
     protected LocalDateTime entrada;
     protected LocalDateTime salida;
-//    private Enum<JornadaEnum> tipo;
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "tipo_id", referencedColumnName = "tipo_id")
     private Tipo tipo;

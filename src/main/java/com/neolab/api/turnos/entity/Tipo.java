@@ -10,9 +10,9 @@ public class Tipo {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "tipo_id")
-    private Long id;
-    private String nombre;
-    private Integer horasDiariasMax;
-    private Integer horasDiariasMin;
-    private Integer horasSemanalesMax;
+    protected Long id;
+    protected String nombre;
+    protected Integer horasDiariasMax;
+    protected Integer horasDiariasMin;
+    protected Integer horasSemanalesMax;
 }
