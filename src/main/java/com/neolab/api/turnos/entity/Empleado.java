@@ -9,7 +9,9 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "empleados")
@@ -18,6 +20,7 @@ import java.util.List;
 public class Empleado {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "empleado_id")
     private Long id;
     private String nombre;
     private String apellido;
@@ -26,20 +29,15 @@ public class Empleado {
     private LocalDate fechaAlta;
     private LocalDate fechaBaja;
 
-    @OneToMany(mappedBy = "empleado")
-    List<Jornada> jornadas = new ArrayList<>();
+    @ManyToMany(fetch = FetchType.LAZY,
+            cascade = {
+                    CascadeType.PERSIST,
+                    CascadeType.MERGE
+            },
+            mappedBy = "empleados")
+    Set<Jornada> jornadas = new HashSet<>();
 
     public Empleado() {
-    }
-
-    public Empleado(Long id, String nombre, String apellido, LocalDate fechaDeNacimiento, String email, LocalDate fechaAlta, LocalDate fechaBaja) {
-        this.id = id;
-        this.nombre = nombre;
-        this.apellido = apellido;
-        this.fechaDeNacimiento = fechaDeNacimiento;
-        this.email = email;
-        this.fechaAlta = fechaAlta;
-        this.fechaBaja = fechaBaja;
     }
 
 }

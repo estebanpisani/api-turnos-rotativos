@@ -7,10 +7,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
+
 @Entity
 @Table(name = "jornadas")
 @Getter
@@ -20,17 +20,35 @@ import java.time.LocalDateTime;
 public class Jornada {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "jornada_id")
     private Long id;
     protected LocalDateTime entrada;
     protected LocalDateTime salida;
-    private Enum<JornadaEnum> tipo;
+//    private Enum<JornadaEnum> tipo;
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "tipo_id", referencedColumnName = "tipo_id")
+    private Tipo tipo;
+    @ManyToMany(fetch = FetchType.LAZY,
+            cascade = {
+                    CascadeType.PERSIST,
+                    CascadeType.MERGE
+            })
+    @JoinTable(name = "jornadas_empleados",
+            joinColumns = { @JoinColumn(name = "jornada_id") },
+            inverseJoinColumns = { @JoinColumn(name = "empleado_id") })
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
-    @JoinColumn(name = "empleado_id", insertable = false, updatable = false)
-    protected Empleado empleado;
-    @Column(name="empleado_id", nullable = false)
-    private Long empleadoId;
+    private Set<Empleado> empleados = new HashSet<>();
 
-    
+    public void addEmpleado(Empleado empleado) {
+        this.empleados.add(empleado);
+    }
+
+    public void removeEmpleado(long id) {
+        Empleado empleado = this.empleados.stream().filter(item -> item.getId() == id).findFirst().orElse(null);
+        if (empleado != null) {
+            this.empleados.remove(empleado);
+        }
+    }
+
 
 }
