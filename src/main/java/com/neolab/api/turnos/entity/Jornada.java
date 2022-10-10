@@ -25,7 +25,7 @@ public class Jornada {
     protected LocalDateTime entrada;
     protected LocalDateTime salida;
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "tipo_id", referencedColumnName = "tipo_id")
+    @JoinColumn(name = "tipo", referencedColumnName = "nombre")
     private Tipo tipo;
     @ManyToMany(fetch = FetchType.LAZY,
             cascade = {
