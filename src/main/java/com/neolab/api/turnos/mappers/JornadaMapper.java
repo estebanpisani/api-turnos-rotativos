@@ -47,18 +47,35 @@ public class JornadaMapper {
         if(dto.getTipo() == null || dto.getTipo().isEmpty() || dto.getEntrada() == null || dto.getEntrada().isEmpty()){
             throw new Exception("Campos requeridos.");
         }
+        Tipo tipo = new Tipo();
 
         if(dto.getTipo().trim().toLowerCase().equals("normal")){
-            jornada.setTipo(new Normal());
+            tipo.setNombre("normal");
+            tipo.setHorasDiariasMin(6);
+            tipo.setHorasDiariasMax(8);
+            tipo.setHorasSemanalesMax(48);
+            jornada.setTipo(tipo);
         }
         else if(dto.getTipo().trim().toLowerCase().equals("extra")){
-            jornada.setTipo(new Extra());
+            tipo.setNombre("extra");
+            tipo.setHorasDiariasMin(2);
+            tipo.setHorasDiariasMax(6);
+            tipo.setHorasSemanalesMax(48);
+            jornada.setTipo(tipo);
         }
         else if(dto.getTipo().trim().toLowerCase().equals("vacaciones")){
-            jornada.setTipo(new Vacaciones());
+            tipo.setNombre("vacaciones");
+            tipo.setHorasDiariasMin(24);
+            tipo.setHorasDiariasMax(24);
+            tipo.setHorasSemanalesMax(168);
+            jornada.setTipo(tipo);
         }
         else if(dto.getTipo().trim().toLowerCase().replace(" ", "_").equals("dia_libre")){
-            jornada.setTipo(new DiaLibre());
+            tipo.setNombre("dia libre");
+            tipo.setHorasDiariasMin(24);
+            tipo.setHorasDiariasMax(24);
+            tipo.setHorasSemanalesMax(48);
+            jornada.setTipo(tipo);
         }
         else if(tipoRepository.findByNombre(dto.getTipo().toLowerCase()).orElse(null) != null){
             jornada.setTipo(tipoRepository.findByNombre(dto.getTipo()).get());
