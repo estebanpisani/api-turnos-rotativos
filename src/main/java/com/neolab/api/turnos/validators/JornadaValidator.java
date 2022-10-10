@@ -1,7 +1,6 @@
 package com.neolab.api.turnos.validators;
 
-import com.neolab.api.turnos.entity.Empleado;
-import com.neolab.api.turnos.entity.Jornada;
+import com.neolab.api.turnos.entity.*;
 import com.neolab.api.turnos.enums.JornadaEnum;
 import com.neolab.api.turnos.repository.EmpleadoRepository;
 import com.neolab.api.turnos.repository.JornadaRepository;
@@ -30,18 +29,18 @@ JornadaRepository jornadaRepository;
             throw new Exception("El horario ingresado no es válido");
         }
     }
-    public void usuarioExiste(Jornada jornada) throws Exception{
-        //Verifica si el usuario referenciado existe en la base de datos.
-        if(!empleadoRepository.existsById(jornada.getEmpleadoId())){
-            throw new Exception("El usuario no existe.");
-        }
-    }
+//    public void usuarioExiste(Jornada jornada) throws Exception{
+//        //Verifica si el usuario referenciado existe en la base de datos.
+//        if(!empleadoRepository.existsById(jornada.getEmpleadosId())){
+//            throw new Exception("El usuario no existe.");
+//        }
+//    }
     public void horarioDisponible(Jornada jornada) throws Exception{
         //Verifica que no haya otra jornada distinta que ocupe ese rango horario.
         //En el caso de la jornada normal, no puede haber dos jornadas normales el mismo día.
-        if(jornada.getTipo().equals(JornadaEnum.NORMAL) && jornadaRepository.findAll().stream()
+        if(jornada.getTipo() instanceof Normal && jornadaRepository.findAll().stream()
                 .anyMatch(item ->
-                        item.getTipo().equals(JornadaEnum.NORMAL) &&
+                        item.getTipo() instanceof Normal &&
                         item.getEntrada().toLocalDate().equals(jornada.getEntrada().toLocalDate()) &&
                         !item.getId().equals(jornada.getId()))){
             throw new Exception("Ya hay una jornada en ese horario.");
@@ -77,7 +76,7 @@ JornadaRepository jornadaRepository;
                 .stream()
                 .filter(item->
                         item.getEntrada().toLocalDate().get(weekNumber) == semanaJornadaNueva && !item.getId().equals(jornada.getId())
-                                && (item.getTipo().equals(JornadaEnum.NORMAL) || item.getTipo().equals(JornadaEnum.EXTRA))
+                                && (item.getTipo() instanceof Normal || item.getTipo() instanceof Extra)
                 )
                 .collect(Collectors.toList());
         //Se otienen las horas semanales
@@ -100,7 +99,7 @@ JornadaRepository jornadaRepository;
                 .stream()
                 .filter(item ->
                         item.getEntrada().toLocalDate().isEqual(jornada.getEntrada().toLocalDate()) && !item.getId().equals(jornada.getId()) &&
-                                (item.getTipo().equals(JornadaEnum.NORMAL) || item.getTipo().equals(JornadaEnum.EXTRA))
+                                (item.getTipo() instanceof Normal || item.getTipo() instanceof Extra )
                 )
                 .collect(Collectors.toList());
         for (Jornada item: jornadasDelDia) {
@@ -110,16 +109,22 @@ JornadaRepository jornadaRepository;
             throw new Exception("La jornada excede las 12hs diarias.");
         }
     }
+    public void rangoHorarioCorrecto(Jornada jornada) throws Exception{
+        if(obtenerHoras(jornada)<jornada.getTipo().getHorasDiariasMin() || obtenerHoras(jornada)>jornada.getTipo().getHorasDiariasMax()){
+            throw new Exception("Rango horario incorrecto. Debe tener entre "+jornada.getTipo().getHorasDiariasMin()+" y "+jornada.getTipo().getHorasDiariasMax()+"hs.");
+        }
+    }
     public void noTieneDiaLibre(Jornada jornada, Empleado empleado) throws Exception{
     //  Si un empleado cargó “Dia libre” no podrá trabajar durante las 24 horas correspondientes a ese día.
-        if (empleado.getJornadas().stream().anyMatch(item -> item.getEntrada().toLocalDate().isEqual(jornada.getEntrada().toLocalDate()) && (item.getTipo().equals(JornadaEnum.DIA_LIBRE)))){
+        if (empleado.getJornadas().stream().anyMatch(item -> item.getEntrada().toLocalDate().isEqual(jornada.getEntrada().toLocalDate()) &&
+                (item.getTipo() instanceof DiaLibre))){
             throw new Exception("El empleado tiene el día libre");
         }
     }
     public void noEstaDeVacaciones(Jornada jornada, Empleado empleado) throws Exception{
         if (empleado.getJornadas().stream()
                 .anyMatch(item ->
-                        item.getTipo().equals(JornadaEnum.VACACIONES) &&
+                        item.getTipo() instanceof Vacaciones &&
                                 (
                                         jornada.getEntrada().toLocalDate().isEqual(item.getEntrada().toLocalDate()) ||
                                                 (
@@ -141,7 +146,7 @@ JornadaRepository jornadaRepository;
                 .stream()
                 .filter(item->
                         item.getEntrada().toLocalDate().get(weekNumber) == jornada.getEntrada().toLocalDate().get(weekNumber)
-                                && item.getTipo().equals(JornadaEnum.DIA_LIBRE) && !item.getId().equals(jornada.getId())
+                                && item.getTipo() instanceof DiaLibre && !item.getId().equals(jornada.getId())
                 )
                 .count()==maximo){
             throw new Exception("No tiene días libres disponibles para esa semana.");
@@ -151,10 +156,9 @@ JornadaRepository jornadaRepository;
 
     //Validaciones según tipo
     //Normal:
-    public void jornadaNormalValidator(Jornada jornada) throws Exception{
+    public void jornadaNormalValidator(Jornada jornada, Empleado empleado) throws Exception{
         //Se verifica si no tiene menos de 6hs ni más de 8hs
-        if(obtenerHoras(jornada)>=6 && obtenerHoras(jornada)<=8) {
-            Empleado empleado = empleadoRepository.findById(jornada.getEmpleadoId()).get();
+        rangoHorarioCorrecto(jornada);
             // Se verifica si el empleado tiene jornadas cargadas
             if (empleado.getJornadas().size() > 0) {
                 noEstaDeVacaciones(jornada, empleado);
@@ -167,16 +171,11 @@ JornadaRepository jornadaRepository;
                 //Se verifica si supera las horas diarias máximas
                 noSuperaHorasDiarias(jornada, empleado);
             }
-        }
-        else{
-            throw new Exception("No tiene entre 6 y 8hs");
-        }
     }
     //Extra
-    public void jornadaExtraValidator(Jornada jornada) throws Exception {
+    public void jornadaExtraValidator(Jornada jornada, Empleado empleado) throws Exception {
         //Se verifica si no tiene menos de 2hs ni más de 6hs
-        if (obtenerHoras(jornada) >= 2 && obtenerHoras(jornada) <= 6) {
-            Empleado empleado = empleadoRepository.findById(jornada.getEmpleadoId()).get();
+        rangoHorarioCorrecto(jornada);
             // Se verifica si el empleado tiene jornadas cargadas
             if (empleado.getJornadas().size() > 0) {
                 noEstaDeVacaciones(jornada, empleado);
@@ -185,14 +184,9 @@ JornadaRepository jornadaRepository;
                 noSuperaHorasSemanales(jornada, empleado);
                 noSuperaHorasDiarias(jornada, empleado);
             }
-        }
-        else {
-            throw new Exception("No tiene entre 2 y 6hs");
-        }
     }
     //Día Libre
-    public void diaLibreValidator(Jornada jornada) throws Exception{
-        Empleado empleado = empleadoRepository.findById(jornada.getEmpleadoId()).get();
+    public void diaLibreValidator(Jornada jornada, Empleado empleado) throws Exception{
         // Se verifica si el empleado tiene jornadas cargadas
         if(empleado.getJornadas().size()>0){
             //Se verifica si no está de vacaciones

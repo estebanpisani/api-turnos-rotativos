@@ -4,10 +4,10 @@ import com.neolab.api.turnos.entity.Tipo;
 import com.neolab.api.turnos.repository.TipoRepository;
 import com.neolab.api.turnos.service.TipoService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
-
+@Service
 public class TipoServiceImpl implements TipoService {
     @Autowired
     TipoRepository tipoRepository;

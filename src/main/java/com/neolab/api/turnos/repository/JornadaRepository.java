@@ -8,5 +8,5 @@ import java.util.List;
 @Repository
 public interface JornadaRepository extends JpaRepository<Jornada, Long> {
 
-    List<Jornada> findByEmpleadoId(Long id);
+    List<Jornada> findByEmpleados(Long id);
 }

@@ -1,8 +1,11 @@
 package com.neolab.api.turnos.mappers;
 
 import com.neolab.api.turnos.dto.JornadaDTO;
-import com.neolab.api.turnos.entity.Jornada;
+import com.neolab.api.turnos.entity.*;
 import com.neolab.api.turnos.enums.JornadaEnum;
+import com.neolab.api.turnos.repository.EmpleadoRepository;
+import com.neolab.api.turnos.repository.TipoRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
@@ -14,15 +17,22 @@ import java.util.List;
 
 @Component
 public class JornadaMapper {
+    @Autowired
+    TipoRepository tipoRepository;
+    @Autowired
+    EmpleadoRepository empleadoRepository;
+
     public JornadaDTO entityToDTO(Jornada jornada){
         DateTimeFormatter formatterHour = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm");
         JornadaDTO dto = new JornadaDTO();
 
         dto.setId(jornada.getId());
-        dto.setEmpleadoId(jornada.getEmpleadoId());
         dto.setEntrada(jornada.getEntrada().format(formatterHour));
         dto.setSalida(jornada.getSalida().format(formatterHour));
-        dto.setTipo(jornada.getTipo().toString());
+        dto.setTipo(jornada.getTipo().getNombre());
+        for (Empleado empleado : jornada.getEmpleados()) {
+            dto.getEmpleadosId().add(empleado.getId());
+        }
 
         return dto;
     }
@@ -32,15 +42,49 @@ public class JornadaMapper {
         DateTimeFormatter formatterDate = DateTimeFormatter.ofPattern("yyyy/MM/dd");
         //Se crea una entidad Jornada vacía.
         Jornada jornada = new Jornada();
+
         //Se validan los campos requeridos
-        if(dto.getEmpleadoId() == null || dto.getTipo() == null || dto.getTipo().isEmpty() || dto.getEntrada() == null || dto.getEntrada().isEmpty()){
+        if(dto.getTipo() == null || dto.getTipo().isEmpty() || dto.getEntrada() == null || dto.getEntrada().isEmpty()){
             throw new Exception("Campos requeridos.");
         }
-        jornada.setEmpleadoId(dto.getEmpleadoId());
+
+        if(dto.getTipo().trim().toLowerCase().equals("normal")){
+            jornada.setTipo(new Normal());
+        }
+        else if(dto.getTipo().trim().toLowerCase().equals("extra")){
+            jornada.setTipo(new Extra());
+        }
+        else if(dto.getTipo().trim().toLowerCase().equals("vacaciones")){
+            jornada.setTipo(new Vacaciones());
+        }
+        else if(dto.getTipo().trim().toLowerCase().replace(" ", "_").equals("dia_libre")){
+            jornada.setTipo(new DiaLibre());
+        }
+        else if(tipoRepository.findByNombre(dto.getTipo().toLowerCase()).orElse(null) != null){
+            jornada.setTipo(tipoRepository.findByNombre(dto.getTipo()).get());
+        }
+        else{
+            throw new Exception("El tipo de jornada ingresado no existe.");
+        }
+
+        if(dto.getEmpleadosId().size()>0) {
+            if(dto.getEmpleadosId().size()<=2) {
+                for (Long id : dto.getEmpleadosId()) {
+                    if (empleadoRepository.existsById(id)) {
+                        jornada.addEmpleado(empleadoRepository.getReferenceById(id));
+                    }
+                    else{
+                        throw new Exception("Empleado no existe.");
+                    }
+                }
+            }
+            else{
+                throw new Exception("Solo se permiten 2 empleados máximo.");
+            }
+        }
 
         //Si es Día Libre se le asigna el horario de entrada y salida para que siempre sea de 24hs
-        if (dto.getTipo().toUpperCase().trim().replace(" ", "_").equals(JornadaEnum.DIA_LIBRE.toString())) {
-            jornada.setTipo(JornadaEnum.DIA_LIBRE);
+        if (jornada.getTipo().getNombre().equals("dia_libre")) {;
             jornada.setEntrada(LocalDateTime.of(LocalDate.parse(dto.getEntrada(), formatterDate), LocalTime.of(0, 0)));
             jornada.setSalida(LocalDateTime.of(LocalDate.parse(dto.getEntrada(), formatterDate), LocalTime.of(23, 59)));
             return jornada;
@@ -50,22 +94,17 @@ public class JornadaMapper {
             throw new Exception("La Fecha/hora de salida es requerida.");
         }
         //En caso de Vacaciones se le asigna el horario de entrada y salida para que siempre sea de 24hs, solo se tiene en cuenta la fecha.
-        if(dto.getTipo().toUpperCase().trim().equals(JornadaEnum.VACACIONES.toString())){
-            jornada.setTipo(JornadaEnum.VACACIONES);
+        if(jornada.getTipo().getNombre().equals("vacaciones")){
             jornada.setEntrada(LocalDateTime.of(LocalDate.parse(dto.getEntrada(), formatterDate), LocalTime.of(0, 0)));
             jornada.setSalida(LocalDateTime.of(LocalDate.parse(dto.getSalida(), formatterDate), LocalTime.of(23, 59)));
             return jornada;
         }
-        if (dto.getTipo().toUpperCase().trim().equals(JornadaEnum.NORMAL.toString())) {
-            jornada.setTipo(JornadaEnum.NORMAL);
+        if (jornada.getTipo().getNombre().equals("normal") || jornada.getTipo().getNombre().equals("extra")) {
+            LocalDateTime horaEntrada = LocalDateTime.parse(dto.getEntrada(), formatterHour);
+            LocalDateTime horaSalida = LocalDateTime.parse(dto.getSalida(), formatterHour);
+            jornada.setEntrada(horaEntrada);
+            jornada.setSalida(horaSalida);
         }
-        if (dto.getTipo().toUpperCase().trim().equals(JornadaEnum.EXTRA.toString())) {
-            jornada.setTipo(JornadaEnum.EXTRA);
-        }
-        LocalDateTime horaEntrada = LocalDateTime.parse(dto.getEntrada(), formatterHour);
-        jornada.setEntrada(horaEntrada);
-        LocalDateTime horaSalida = LocalDateTime.parse(dto.getSalida(), formatterHour);
-        jornada.setSalida(horaSalida);
         return jornada;
     }
     public List<JornadaDTO> entityListToDTOList(List<Jornada> jornadas){

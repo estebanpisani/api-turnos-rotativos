@@ -3,6 +3,9 @@ package com.neolab.api.turnos.dto;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Getter
 @Setter
 public class JornadaDTO {
@@ -10,16 +13,16 @@ public class JornadaDTO {
     private String entrada;
     private String salida;
     private String tipo;
-    private Long empleadoId;
+    private Set<Long> empleadosId = new HashSet<>();
 
     public JornadaDTO() {
     }
 
-    public JornadaDTO(Long id, String entrada, String salida, String tipo, Long empleadoId) {
+    public JornadaDTO(Long id, String entrada, String salida, String tipo, Set<Long> empleadosId) {
         this.id = id;
         this.entrada = entrada;
         this.salida = salida;
         this.tipo = tipo;
-        this.empleadoId = empleadoId;
+        this.empleadosId = empleadosId;
     }
 }

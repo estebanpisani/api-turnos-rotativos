@@ -4,10 +4,12 @@ import lombok.Data;
 import org.hibernate.validator.constraints.UniqueElements;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
+@Entity
 @Data
 @Table(name = "tipos")
-public class Tipo {
+public class Tipo implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "tipo_id")
