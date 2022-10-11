@@ -1,6 +1,5 @@
 package com.neolab.api.turnos.controllers;
 
-import com.neolab.api.turnos.dto.JornadaDTO;
 import com.neolab.api.turnos.entity.Tipo;
 import com.neolab.api.turnos.service.impl.TipoServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;

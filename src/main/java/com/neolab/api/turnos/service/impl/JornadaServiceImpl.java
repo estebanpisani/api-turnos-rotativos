@@ -2,7 +2,6 @@ package com.neolab.api.turnos.service.impl;
 
 import com.neolab.api.turnos.dto.JornadaDTO;
 import com.neolab.api.turnos.entity.*;
-import com.neolab.api.turnos.enums.JornadaEnum;
 import com.neolab.api.turnos.mappers.JornadaMapper;
 import com.neolab.api.turnos.repository.EmpleadoRepository;
 import com.neolab.api.turnos.repository.JornadaRepository;

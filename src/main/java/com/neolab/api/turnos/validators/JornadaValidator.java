@@ -1,7 +1,6 @@
 package com.neolab.api.turnos.validators;
 
 import com.neolab.api.turnos.entity.*;
-import com.neolab.api.turnos.enums.JornadaEnum;
 import com.neolab.api.turnos.repository.EmpleadoRepository;
 import com.neolab.api.turnos.repository.JornadaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,8 +16,6 @@ import java.util.stream.Collectors;
 
 @Component
 public class JornadaValidator {
-@Autowired
-EmpleadoRepository empleadoRepository;
 @Autowired
 JornadaRepository jornadaRepository;
     //Validar jornada

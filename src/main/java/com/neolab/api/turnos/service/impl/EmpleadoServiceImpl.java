@@ -8,10 +8,6 @@ import com.neolab.api.turnos.service.EmpleadoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.validation.Valid;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,7 +22,7 @@ public class EmpleadoServiceImpl implements EmpleadoService {
     public EmpleadoDTO createEmpleado(EmpleadoDTO dto) {
         //Crea una entidad Empleado con lo datos del DTO y se guarda en la base de datos.
         //La clase EmpleadoMapper se encarga de hacer la conversión de tipos de datos según se requiera.
-        Empleado newEmpleado = null;
+        Empleado newEmpleado;
         try {
             newEmpleado = empleadoRepository.save(empleadoMapper.dtoToEntity(dto));
         } catch (Exception e) {
@@ -69,15 +65,13 @@ public class EmpleadoServiceImpl implements EmpleadoService {
     @Override
     public List<EmpleadoDTO> getEmpleados() {
         List<Empleado> empleados = empleadoRepository.findAll();
-        List<EmpleadoDTO> dtos = empleadoMapper.entityListToDTOList(empleados);
-        return dtos;
+        return empleadoMapper.entityListToDTOList(empleados);
     }
     @Override
     public EmpleadoDTO getEmpleadoById(Long id) {
         Optional<Empleado> opt = empleadoRepository.findById(id);
         if(opt.isPresent()){
-            EmpleadoDTO response = empleadoMapper.entityToDTO(opt.get());
-            return response;
+            return empleadoMapper.entityToDTO(opt.get());
         }
         return null;
     }
