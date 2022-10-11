@@ -29,12 +29,6 @@ JornadaRepository jornadaRepository;
             throw new Exception("El horario ingresado no es válido");
         }
     }
-//    public void usuarioExiste(Jornada jornada) throws Exception{
-//        //Verifica si el usuario referenciado existe en la base de datos.
-//        if(!empleadoRepository.existsById(jornada.getEmpleadosId())){
-//            throw new Exception("El usuario no existe.");
-//        }
-//    }
     public void horarioDisponible(Jornada jornada) throws Exception{
         //Verifica que no haya otra jornada distinta que ocupe ese rango horario.
         //En el caso de la jornada normal, no puede haber dos jornadas normales el mismo día.
@@ -88,7 +82,7 @@ JornadaRepository jornadaRepository;
             }
             //Se evalúa si la suma entre las horas semanales y la jornada nueva no superan las 48hs
             if(horasSemanales+obtenerHoras(jornada)>48){
-                throw new Exception("El empleado "+empleado.getNombre()+" no puede trabajar más de 48hs semanales.");
+                throw new Exception("La jornada excede las 48hs semanales del empleado "+empleado.getNombre()+" "+empleado.getApellido());
             }
         }
     }
@@ -108,7 +102,7 @@ JornadaRepository jornadaRepository;
             horasDelDia += this.obtenerHoras(item);
         }
         if (horasDelDia+obtenerHoras(jornada)>12) {
-            throw new Exception("La jornada del empleado "+empleado.getNombre()+" excede las 12hs diarias.");
+            throw new Exception("La jornada excede las 12hs diarias del empleado "+empleado.getNombre()+" "+empleado.getApellido());
         }
     }
     public void rangoHorarioCorrecto(Jornada jornada) throws Exception{
@@ -120,7 +114,7 @@ JornadaRepository jornadaRepository;
     //  Si un empleado cargó “Dia libre” no podrá trabajar durante las 24 horas correspondientes a ese día.
         if (empleado.getJornadas().stream().anyMatch(item -> item.getEntrada().toLocalDate().isEqual(jornada.getEntrada().toLocalDate()) &&
                 (item.getTipo().getNombre().equalsIgnoreCase("dia_libre")))){
-            throw new Exception("El empleado tiene el día libre");
+            throw new Exception("El empleado "+empleado.getNombre()+" "+empleado.getApellido()+" tiene el día libre");
         }
     }
     public void noEstaDeVacaciones(Jornada jornada, Empleado empleado) throws Exception{
@@ -136,7 +130,7 @@ JornadaRepository jornadaRepository;
                                                 jornada.getEntrada().toLocalDate().isEqual(item.getSalida().toLocalDate())
                                 )
                 )){
-            throw new Exception("El empleado está de vacaciones en esa fecha.");
+            throw new Exception("El empleado "+empleado.getNombre()+" "+empleado.getApellido()+" está de vacaciones en esa fecha.");
         }
     }
     public void tieneDiasLibresDisponibles(Jornada jornada,Empleado empleado, int maximo) throws Exception{
@@ -151,7 +145,7 @@ JornadaRepository jornadaRepository;
                                 && item.getTipo().getNombre().equalsIgnoreCase("dia_libre") && !item.getId().equals(jornada.getId())
                 )
                 .count()==maximo){
-            throw new Exception("No tiene días libres disponibles para esa semana.");
+            throw new Exception("El empleado "+empleado.getNombre()+" "+empleado.getApellido()+" no tiene días libres disponibles para esa semana.");
         }
     }
 
