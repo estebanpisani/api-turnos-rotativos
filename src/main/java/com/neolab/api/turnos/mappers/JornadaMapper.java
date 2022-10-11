@@ -49,8 +49,6 @@ public class JornadaMapper {
         }
 //Se verifica si el tipo de jornada ingresado ya se encuentra en la base de datos. En caso de que sí, lo asigna como tipo de jornada.
         if(tipoRepository.findByNombre(dto.getTipo().trim().toLowerCase().replace(" ", "_")).orElse(null) != null){
-            System.out.println("Encontro Tipo.");
-            System.out.println(tipoRepository.findByNombre(dto.getTipo().trim().toLowerCase().replace(" ", "_")).get().getNombre());
             jornada.setTipo(tipoRepository.findByNombre(dto.getTipo().trim().toLowerCase().replace(" ", "_")).get());
         }
         //En caso de que no, se crea una jornada de los tipos predefinidos.
@@ -78,7 +76,7 @@ public class JornadaMapper {
                         jornada.addEmpleado(empleadoRepository.getReferenceById(id));
                     }
                     else{
-                        throw new Exception("Empleado no existe.");
+                        throw new Exception("No existe empleado con ID "+id+".");
                     }
                 }
             }

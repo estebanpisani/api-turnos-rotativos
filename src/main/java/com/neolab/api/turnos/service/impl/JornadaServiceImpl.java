@@ -4,6 +4,7 @@ import com.neolab.api.turnos.dto.JornadaDTO;
 import com.neolab.api.turnos.entity.*;
 import com.neolab.api.turnos.enums.JornadaEnum;
 import com.neolab.api.turnos.mappers.JornadaMapper;
+import com.neolab.api.turnos.repository.EmpleadoRepository;
 import com.neolab.api.turnos.repository.JornadaRepository;
 import com.neolab.api.turnos.service.JornadaService;
 import com.neolab.api.turnos.validators.JornadaValidator;
@@ -12,15 +13,15 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 public class JornadaServiceImpl implements JornadaService {
     @Autowired
     JornadaRepository jornadaRepository;
+    @Autowired
+    EmpleadoRepository empleadoRepository;
     @Autowired
     JornadaMapper jornadaMapper;
     @Autowired
@@ -31,10 +32,8 @@ public class JornadaServiceImpl implements JornadaService {
             try {
                 Jornada jornada = jornadaMapper.dtoToEntity(dto);
                 if(jornada != null) {
-                    System.out.println("Creó la entidad");
                     //Se validan los datos según el tipo de jornada.
                     if (jornada.getTipo().getNombre().equalsIgnoreCase("dia_libre")) {
-                        System.out.println("Matcheo Día libre");
                         if(jornada.getEmpleados().size()>0){
                             for (Empleado empleado: jornada.getEmpleados()) {
                                 jornadaValidator.diaLibreValidator(jornada, empleado);
@@ -45,42 +44,37 @@ public class JornadaServiceImpl implements JornadaService {
                     }
                     //Si es vacaciones, jornada normal o extra, se verifica si la jornada tiene un formato válido.
                     jornadaValidator.horarioValido(jornada);
-                    System.out.println("Aprobó horario.");
+                    //Antes de crear la jornada, pasa por todos los validadores para cada caso.
                     if(jornada.getTipo().getNombre().equalsIgnoreCase("vacaciones")){
-                        System.out.println("Matcheo Vacaciones");
                         Jornada newJornada = jornadaRepository.save(jornada);
                         return jornadaMapper.entityToDTO(newJornada);
                     }
                     if (jornada.getTipo().getNombre().equalsIgnoreCase("normal")) {
-                        System.out.println("Matcheo Normal");
                         if(jornada.getEmpleados().size()>0){
                             for (Empleado empleado: jornada.getEmpleados()) {
                                 jornadaValidator.jornadaNormalValidator(jornada, empleado);
-                                System.out.println("Aprobó validator de empleado");
                             }
                         }
                         Jornada newJornada = jornadaRepository.save(jornada);
                         return jornadaMapper.entityToDTO(newJornada);
                     }
                     if (jornada.getTipo().getNombre().equalsIgnoreCase("extra")) {
-                        System.out.println("Matcheo Extra");
                         if(jornada.getEmpleados().size()>0){
                             for (Empleado empleado: jornada.getEmpleados()) {
                                 try {
                                     jornadaValidator.jornadaExtraValidator(jornada, empleado);
-                                    System.out.println("Aprobó validator de empleado");
                                 }
                                 catch (Exception e){
                                     throw new Exception(e.getMessage());
                                 }
                             }
                         }
-                        System.out.println("Aprobó validator de empleado");
                         Jornada newJornada = jornadaRepository.save(jornada);
                         return jornadaMapper.entityToDTO(newJornada);
                     }
+                    //En caso de no ser los tipos predefinidos, se usan validadores genéricos.
                     else{
-                        throw new Exception("Error al crear entidad.");
+                        throw new Exception("Error al asignar tipo.");
                     }
                     //TODO caso jornada creada por el usuario (Validador genérico)
                 }
@@ -92,58 +86,91 @@ public class JornadaServiceImpl implements JornadaService {
             }
     }
 
-    @Override
-    public JornadaDTO updateJornada(Long id, JornadaDTO dto) throws Exception {
-        return null;
-    }
-
 //    @Override
 //    public JornadaDTO updateJornada(Long id, JornadaDTO dto) throws Exception {
-//        try {
-//            //Se busca la entidad en la base de datos por su id.
-//            Optional<Jornada> opt = jornadaRepository.findById(id);
-//            if (opt.isPresent()) {
-//                // Se obtiene la jornada de la base de datos y se modifican sólo los datos del DTO que no son nulos y distintos.
-//                DateTimeFormatter formatterHour = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm");
-//                Jornada jornadaDB = opt.get();
-//                if (dto.getEntrada() != null) {
-//                    LocalDateTime horaEntrada = LocalDateTime.parse(dto.getEntrada(), formatterHour);
-//                    jornadaDB.setEntrada(horaEntrada);
-//                }
-//                if (dto.getSalida() != null) {
-//                    LocalDateTime horaSalida = LocalDateTime.parse(dto.getSalida(), formatterHour);
-//                    jornadaDB.setSalida(horaSalida);
-//                }
-//                if (jornadaDB.getTipo().equals(JornadaEnum.DIA_LIBRE)) {
-//                        jornadaValidator.diaLibreValidator(jornadaDB);
-//                        return jornadaMapper.entityToDTO(jornadaRepository.save(jornadaDB));
-//                }
-//
-//                jornadaValidator.horarioValido(jornadaDB);
-//
-//                if (jornadaDB.getTipo().equals(JornadaEnum.VACACIONES)) {
-//                    return jornadaMapper.entityToDTO(jornadaRepository.save(jornadaDB));
-//                }
-//                if (jornadaDB.getTipo().equals(JornadaEnum.NORMAL)) {
-//                    jornadaValidator.jornadaNormalValidator(jornadaDB);
-//                    return jornadaMapper.entityToDTO(jornadaRepository.save(jornadaDB));
-//                }
-//                if (jornadaDB.getTipo().equals(JornadaEnum.EXTRA)) {
-//                    jornadaValidator.jornadaExtraValidator(jornadaDB);
-//                    return jornadaMapper.entityToDTO(jornadaRepository.save(jornadaDB));
-//                }
-//                else {
-//                    throw new Exception("Tipo de jornada inexistente.");
-//                }
-//            }
-//            else {
-//                throw new Exception("Usuario no existe.");
-//            }
-//        }
-//        catch(Exception e){
-//            throw new Exception(e.getMessage());
-//        }
+//        return null;
 //    }
+
+    @Override
+    public JornadaDTO updateJornada(Long id, JornadaDTO dto) throws Exception {
+        try {
+            //Se busca la entidad en la base de datos por su id.
+            Optional<Jornada> opt = jornadaRepository.findById(id);
+            if (opt.isPresent()) {
+                // Se obtiene la jornada de la base de datos y se modifican sólo los datos del DTO que no son nulos y distintos.
+                DateTimeFormatter formatterHour = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm");
+                Jornada jornadaDB = opt.get();
+                //Si por el dto llega información de los empleados, los asigna a la jornada.
+                if(dto.getEmpleadosId().size()>0) {
+                    if(dto.getEmpleadosId().size()<=2) {
+                        //Se verifica que todos los empleados existan en la base de datos.
+                        if (dto.getEmpleadosId().stream().anyMatch(item -> !empleadoRepository.existsById(item))){
+                            throw new Exception("Empleado no existe.");
+                        }
+                        Set<Empleado> empleados = new HashSet<>();
+                        dto.getEmpleadosId().stream().forEach(item -> empleados.add(empleadoRepository.getReferenceById(item)));
+                        jornadaDB.setEmpleados(empleados);
+                    }
+                    else{
+                        throw new Exception("Solo se permiten 2 empleados máximo.");
+                    }
+                }
+
+                if (dto.getEntrada() != null) {
+                    LocalDateTime horaEntrada = LocalDateTime.parse(dto.getEntrada(), formatterHour);
+                    jornadaDB.setEntrada(horaEntrada);
+                }
+                if (dto.getSalida() != null) {
+                    LocalDateTime horaSalida = LocalDateTime.parse(dto.getSalida(), formatterHour);
+                    jornadaDB.setSalida(horaSalida);
+                }
+                if (jornadaDB.getTipo().getNombre().equalsIgnoreCase("dia_libre")) {
+                    if(jornadaDB.getEmpleados().size()>0){
+                        for (Empleado empleado: jornadaDB.getEmpleados()) {
+                            jornadaValidator.diaLibreValidator(jornadaDB, empleado);
+                        }
+                    }
+                    return jornadaMapper.entityToDTO(jornadaRepository.save(jornadaDB));
+                }
+
+                jornadaValidator.horarioValido(jornadaDB);
+
+                if(jornadaDB.getTipo().getNombre().equalsIgnoreCase("vacaciones")){
+                    return jornadaMapper.entityToDTO(jornadaRepository.save(jornadaDB));
+                }
+                if (jornadaDB.getTipo().getNombre().equalsIgnoreCase("normal")) {
+                    if(jornadaDB.getEmpleados().size()>0){
+                        for (Empleado empleado: jornadaDB.getEmpleados()) {
+                            jornadaValidator.jornadaNormalValidator(jornadaDB, empleado);
+                        }
+                    }
+                    return jornadaMapper.entityToDTO(jornadaRepository.save(jornadaDB));
+                }
+                if (jornadaDB.getTipo().getNombre().equalsIgnoreCase("extra")) {
+                    if(jornadaDB.getEmpleados().size()>0){
+                        for (Empleado empleado: jornadaDB.getEmpleados()) {
+                            try {
+                                jornadaValidator.jornadaExtraValidator(jornadaDB, empleado);
+                            }
+                            catch (Exception e){
+                                throw new Exception(e.getMessage());
+                            }
+                        }
+                    }
+                    return jornadaMapper.entityToDTO(jornadaRepository.save(jornadaDB));
+                }
+                else {
+                    throw new Exception("Tipo de jornada inexistente.");
+                }
+            }
+            else {
+                throw new Exception("Usuario no existe.");
+            }
+        }
+        catch(Exception e){
+            throw new Exception(e.getMessage());
+        }
+    }
 
     @Override
     public List<JornadaDTO> getAllJornadas(String tipo) {

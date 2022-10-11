@@ -70,7 +70,8 @@ JornadaRepository jornadaRepository;
         //Se obtiene el número de la semana del año para comparar.
         TemporalField weekNumber = WeekFields.of(Locale.getDefault()).weekOfWeekBasedYear();
         int semanaJornadaNueva = jornada.getEntrada().toLocalDate().get(weekNumber);
-        //Se filtran jornadas existentes en la misma semana
+        //Se filtran jornadas normales/extras existentes en la misma semana
+        //TODO filtrar por distinto de dia_libre o vacaciones (para mayor inclusión)
         List<Jornada> jornadasMismaSemana = empleado
                 .getJornadas()
                 .stream()
@@ -79,7 +80,7 @@ JornadaRepository jornadaRepository;
                                 && (item.getTipo().getNombre().equalsIgnoreCase("normal") || item.getTipo().getNombre().equalsIgnoreCase("extra"))
                 )
                 .collect(Collectors.toList());
-        //Se otienen las horas semanales
+        //Se obtienen las horas semanales
         if(jornadasMismaSemana.size()>0) {
             long horasSemanales = 0;
             for (Jornada item : jornadasMismaSemana) {
@@ -87,7 +88,7 @@ JornadaRepository jornadaRepository;
             }
             //Se evalúa si la suma entre las horas semanales y la jornada nueva no superan las 48hs
             if(horasSemanales+obtenerHoras(jornada)>48){
-                throw new Exception("No puede trabajar más de 48hs semanales.");
+                throw new Exception("El empleado "+empleado.getNombre()+" no puede trabajar más de 48hs semanales.");
             }
         }
     }
@@ -95,6 +96,7 @@ JornadaRepository jornadaRepository;
         //  Para cada fecha, un empleado (siempre que no esté de vacaciones o haya pedido día libre)
         //  podrá cargar un turno normal, un turno extra o una combinación de ambos que no supere las 12 horas.
         long horasDelDia = 0;
+        //TODO filtrar por distinto de dia_libre o vacaciones (para mayor inclusión)
         List<Jornada> jornadasDelDia = empleado.getJornadas()
                 .stream()
                 .filter(item ->
@@ -106,7 +108,7 @@ JornadaRepository jornadaRepository;
             horasDelDia += this.obtenerHoras(item);
         }
         if (horasDelDia+obtenerHoras(jornada)>12) {
-            throw new Exception("La jornada excede las 12hs diarias.");
+            throw new Exception("La jornada del empleado "+empleado.getNombre()+" excede las 12hs diarias.");
         }
     }
     public void rangoHorarioCorrecto(Jornada jornada) throws Exception{
@@ -152,7 +154,6 @@ JornadaRepository jornadaRepository;
             throw new Exception("No tiene días libres disponibles para esa semana.");
         }
     }
-    //TODO Por cada turno no puede haber más que 2 empleados.
 
     //Validaciones según tipo
     //Normal:
