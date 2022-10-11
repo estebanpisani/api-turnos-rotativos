@@ -32,10 +32,9 @@ public class JornadaServiceImpl implements JornadaService {
                 Jornada jornada = jornadaMapper.dtoToEntity(dto);
                 if(jornada != null) {
                     System.out.println("Creó la entidad");
-                    System.out.println("Tipo "+jornada.getTipo().getNombre());
-                    System.out.println("Entrada: "+jornada.getEntrada().toString());
                     //Se validan los datos según el tipo de jornada.
-                    if (jornada.getTipo() instanceof DiaLibre) {
+                    if (jornada.getTipo().getNombre().equalsIgnoreCase("dia_libre")) {
+                        System.out.println("Matcheo Día libre");
                         if(jornada.getEmpleados().size()>0){
                             for (Empleado empleado: jornada.getEmpleados()) {
                                 jornadaValidator.diaLibreValidator(jornada, empleado);
@@ -46,23 +45,25 @@ public class JornadaServiceImpl implements JornadaService {
                     }
                     //Si es vacaciones, jornada normal o extra, se verifica si la jornada tiene un formato válido.
                     jornadaValidator.horarioValido(jornada);
-
-                    if(jornada.getTipo() instanceof Vacaciones){
+                    System.out.println("Aprobó horario.");
+                    if(jornada.getTipo().getNombre().equalsIgnoreCase("vacaciones")){
+                        System.out.println("Matcheo Vacaciones");
                         Jornada newJornada = jornadaRepository.save(jornada);
                         return jornadaMapper.entityToDTO(newJornada);
                     }
-                    if (jornada.getTipo() instanceof Normal) {
+                    if (jornada.getTipo().getNombre().equalsIgnoreCase("normal")) {
+                        System.out.println("Matcheo Normal");
                         if(jornada.getEmpleados().size()>0){
                             for (Empleado empleado: jornada.getEmpleados()) {
                                 jornadaValidator.jornadaNormalValidator(jornada, empleado);
                                 System.out.println("Aprobó validator de empleado");
                             }
                         }
-                        System.out.println("Aprobó validator de empleado");
                         Jornada newJornada = jornadaRepository.save(jornada);
                         return jornadaMapper.entityToDTO(newJornada);
                     }
-                    if (jornada.getTipo() instanceof Extra) {
+                    if (jornada.getTipo().getNombre().equalsIgnoreCase("extra")) {
+                        System.out.println("Matcheo Extra");
                         if(jornada.getEmpleados().size()>0){
                             for (Empleado empleado: jornada.getEmpleados()) {
                                 try {
@@ -79,7 +80,7 @@ public class JornadaServiceImpl implements JornadaService {
                         return jornadaMapper.entityToDTO(newJornada);
                     }
                     else{
-                        return null;
+                        throw new Exception("Error al crear entidad.");
                     }
                     //TODO caso jornada creada por el usuario (Validador genérico)
                 }

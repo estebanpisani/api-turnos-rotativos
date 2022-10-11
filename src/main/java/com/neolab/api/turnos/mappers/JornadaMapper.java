@@ -47,43 +47,30 @@ public class JornadaMapper {
         if(dto.getTipo() == null || dto.getTipo().isEmpty() || dto.getEntrada() == null || dto.getEntrada().isEmpty()){
             throw new Exception("Campos requeridos.");
         }
-        Tipo tipo = new Tipo();
-
-        if(dto.getTipo().trim().toLowerCase().equals("normal")){
-            tipo.setNombre("normal");
-            tipo.setHorasDiariasMin(6);
-            tipo.setHorasDiariasMax(8);
-            tipo.setHorasSemanalesMax(48);
-            jornada.setTipo(tipo);
+//Se verifica si el tipo de jornada ingresado ya se encuentra en la base de datos. En caso de que sí, lo asigna como tipo de jornada.
+        if(tipoRepository.findByNombre(dto.getTipo().trim().toLowerCase().replace(" ", "_")).orElse(null) != null){
+            System.out.println("Encontro Tipo.");
+            System.out.println(tipoRepository.findByNombre(dto.getTipo().trim().toLowerCase().replace(" ", "_")).get().getNombre());
+            jornada.setTipo(tipoRepository.findByNombre(dto.getTipo().trim().toLowerCase().replace(" ", "_")).get());
+        }
+        //En caso de que no, se crea una jornada de los tipos predefinidos.
+        else if(dto.getTipo().trim().toLowerCase().equals("normal")){
+            Normal normal = new Normal();
+            jornada.setTipo(normal);
         }
         else if(dto.getTipo().trim().toLowerCase().equals("extra")){
-            tipo.setNombre("extra");
-            tipo.setHorasDiariasMin(2);
-            tipo.setHorasDiariasMax(6);
-            tipo.setHorasSemanalesMax(48);
-            jornada.setTipo(tipo);
+            jornada.setTipo(new Extra());
         }
         else if(dto.getTipo().trim().toLowerCase().equals("vacaciones")){
-            tipo.setNombre("vacaciones");
-            tipo.setHorasDiariasMin(24);
-            tipo.setHorasDiariasMax(24);
-            tipo.setHorasSemanalesMax(168);
-            jornada.setTipo(tipo);
+            jornada.setTipo(new Vacaciones());
         }
         else if(dto.getTipo().trim().toLowerCase().replace(" ", "_").equals("dia_libre")){
-            tipo.setNombre("dia libre");
-            tipo.setHorasDiariasMin(24);
-            tipo.setHorasDiariasMax(24);
-            tipo.setHorasSemanalesMax(48);
-            jornada.setTipo(tipo);
-        }
-        else if(tipoRepository.findByNombre(dto.getTipo().toLowerCase()).orElse(null) != null){
-            jornada.setTipo(tipoRepository.findByNombre(dto.getTipo()).get());
+            jornada.setTipo(new DiaLibre());
         }
         else{
             throw new Exception("El tipo de jornada ingresado no existe.");
         }
-
+//Verifica que los usuarios ingresados existan en la base de datos.
         if(dto.getEmpleadosId().size()>0) {
             if(dto.getEmpleadosId().size()<=2) {
                 for (Long id : dto.getEmpleadosId()) {
