@@ -49,6 +49,7 @@ public class JornadaMapper {
         }
         //Se verifica si el tipo de jornada ingresado ya se encuentra en la base de datos. En caso de que sí, lo asigna como tipo de jornada.
         if(tipoRepository.findByNombre(dto.getTipo().trim().toLowerCase().replace(" ", "_")).orElse(null) != null){
+            System.out.println("La encontró");
             jornada.setTipo(tipoRepository.findByNombre(dto.getTipo().trim().toLowerCase().replace(" ", "_")).get());
         }
         //En caso de que no, se crea una jornada de los tipos predefinidos.
@@ -101,12 +102,12 @@ public class JornadaMapper {
             jornada.setSalida(LocalDateTime.of(LocalDate.parse(dto.getSalida(), formatterDate), LocalTime.of(23, 59)));
             return jornada;
         }
-        if (jornada.getTipo().getNombre().equals("normal") || jornada.getTipo().getNombre().equals("extra")) {
-            LocalDateTime horaEntrada = LocalDateTime.parse(dto.getEntrada(), formatterHour);
-            LocalDateTime horaSalida = LocalDateTime.parse(dto.getSalida(), formatterHour);
-            jornada.setEntrada(horaEntrada);
-            jornada.setSalida(horaSalida);
-        }
+
+        LocalDateTime horaEntrada = LocalDateTime.parse(dto.getEntrada(), formatterHour);
+        LocalDateTime horaSalida = LocalDateTime.parse(dto.getSalida(), formatterHour);
+        jornada.setEntrada(horaEntrada);
+        jornada.setSalida(horaSalida);
+
         return jornada;
     }
     public List<JornadaDTO> entityListToDTOList(List<Jornada> jornadas){

@@ -31,6 +31,9 @@ public class JornadaServiceImpl implements JornadaService {
             try {
                 Jornada jornada = jornadaMapper.dtoToEntity(dto);
                 if(jornada != null) {
+                    System.out.println("Tipo: "+jornada.getTipo().getNombre());
+                    System.out.println("Ingreso: "+jornada.getEntrada().toString());
+                    System.out.println("Salida: "+jornada.getSalida().toString());
                     //Se validan los datos según el tipo de jornada.
                     if (jornada.getTipo().getNombre().equalsIgnoreCase("dia_libre")) {
                         if(jornada.getEmpleados().size()>0){

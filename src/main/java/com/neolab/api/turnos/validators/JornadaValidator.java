@@ -25,19 +25,22 @@ JornadaRepository jornadaRepository;
             throw new Exception("El horario ingresado no es válido");
         }
     }
-    public void horarioDisponible(Jornada jornada) throws Exception{
+    public void horarioDisponible(Jornada jornada, Empleado empleado) throws Exception{
         //Verifica que no haya otra jornada distinta que ocupe ese rango horario.
-        //En el caso de la jornada normal, no puede haber dos jornadas normales el mismo día.
+        //En el caso de la jornada normal, no puede haber dos jornadas normales el mismo día para el mismo Empleado.
         if(jornada.getTipo().getNombre().equalsIgnoreCase("normal") && jornadaRepository.findAll().stream()
                 .anyMatch(item ->
+                        item.getEmpleados().stream().anyMatch(e -> e.getId().equals(empleado.getId())) &&
                         item.getTipo().getNombre().equalsIgnoreCase("normal") &&
                         item.getEntrada().toLocalDate().equals(jornada.getEntrada().toLocalDate()) &&
                         !item.getId().equals(jornada.getId()))){
-            throw new Exception("Ya hay una jornada en ese horario.");
+            throw new Exception("El empleado "+empleado.getNombre()+" "+empleado.getApellido()+" ya tiene una jornada en ese horario.");
         }
-        if (jornadaRepository.findAll().stream()
+        else if (!jornada.getTipo().getNombre().equalsIgnoreCase("dia_libre") && !jornada.getTipo().getNombre().equalsIgnoreCase("vacaciones") && jornadaRepository.findAll().stream()
                 .anyMatch(item ->
                         !item.getId().equals(jornada.getId()) &&
+                                !item.getTipo().getNombre().equalsIgnoreCase("dia_libre") &&
+                                !item.getTipo().getNombre().equalsIgnoreCase("vacaciones") &&
                         item.getEntrada().toLocalDate().equals(jornada.getEntrada().toLocalDate()) &&
                         (
                             jornada.getEntrada().isEqual(item.getEntrada()) ||
@@ -67,7 +70,7 @@ JornadaRepository jornadaRepository;
                 .stream()
                 .filter(item->
                         item.getEntrada().toLocalDate().get(weekNumber) == semanaJornadaNueva && !item.getId().equals(jornada.getId())
-                                && (item.getTipo().getNombre().equalsIgnoreCase("normal") || item.getTipo().getNombre().equalsIgnoreCase("extra"))
+                                && (!item.getTipo().getNombre().equalsIgnoreCase("dia_libre") && !item.getTipo().getNombre().equalsIgnoreCase("vacaciones"))
                 )
                 .collect(Collectors.toList());
         //Se obtienen las horas semanales
@@ -91,7 +94,7 @@ JornadaRepository jornadaRepository;
                 .stream()
                 .filter(item ->
                         item.getEntrada().toLocalDate().isEqual(jornada.getEntrada().toLocalDate()) && !item.getId().equals(jornada.getId()) &&
-                                (item.getTipo().getNombre().equalsIgnoreCase("normal") || item.getTipo().getNombre().equalsIgnoreCase("extra"))
+                                (!item.getTipo().getNombre().equalsIgnoreCase("dia_libre") && !item.getTipo().getNombre().equalsIgnoreCase("vacaciones"))
                 )
                 .collect(Collectors.toList());
         for (Jornada item: jornadasDelDia) {
@@ -156,7 +159,7 @@ JornadaRepository jornadaRepository;
                 //Se verifica si no tiene el día libre
                 noTieneDiaLibre(jornada, empleado);
                 //Se verifica si el día está disponible
-                horarioDisponible(jornada);
+                horarioDisponible(jornada, empleado);
                 //Se verifica si la jornada no supera las horas semanales.
                 noSuperaHorasSemanales(jornada, empleado);
                 //Se verifica si supera las horas diarias máximas
