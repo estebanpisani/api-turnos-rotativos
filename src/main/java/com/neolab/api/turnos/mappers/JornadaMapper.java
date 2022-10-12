@@ -2,7 +2,6 @@ package com.neolab.api.turnos.mappers;
 
 import com.neolab.api.turnos.dto.JornadaDTO;
 import com.neolab.api.turnos.entity.*;
-import com.neolab.api.turnos.enums.JornadaEnum;
 import com.neolab.api.turnos.repository.EmpleadoRepository;
 import com.neolab.api.turnos.repository.TipoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,21 +48,20 @@ public class JornadaMapper {
         }
         //Se verifica si el tipo de jornada ingresado ya se encuentra en la base de datos. En caso de que sí, lo asigna como tipo de jornada.
         if(tipoRepository.findByNombre(dto.getTipo().trim().toLowerCase().replace(" ", "_")).orElse(null) != null){
-            System.out.println("La encontró");
             jornada.setTipo(tipoRepository.findByNombre(dto.getTipo().trim().toLowerCase().replace(" ", "_")).get());
         }
         //En caso de que no, se crea una jornada de los tipos predefinidos.
-        else if(dto.getTipo().trim().toLowerCase().equals("normal")){
+        else if(dto.getTipo().trim().equalsIgnoreCase("normal")){
             Normal normal = new Normal();
             jornada.setTipo(normal);
         }
-        else if(dto.getTipo().trim().toLowerCase().equals("extra")){
+        else if(dto.getTipo().trim().equalsIgnoreCase("extra")){
             jornada.setTipo(new Extra());
         }
-        else if(dto.getTipo().trim().toLowerCase().equals("vacaciones")){
+        else if(dto.getTipo().trim().equalsIgnoreCase("vacaciones")){
             jornada.setTipo(new Vacaciones());
         }
-        else if(dto.getTipo().trim().toLowerCase().replace(" ", "_").equals("dia_libre")){
+        else if(dto.getTipo().trim().replace(" ", "_").equalsIgnoreCase("dia_libre")){
             jornada.setTipo(new DiaLibre());
         }
         else{
@@ -87,7 +85,7 @@ public class JornadaMapper {
         }
 
         //Si es Día Libre se le asigna el horario de entrada y salida para que siempre sea de 24hs
-        if (jornada.getTipo().getNombre().equals("dia_libre")) {;
+        if (jornada.getTipo().getNombre().equals("dia_libre")) {
             jornada.setEntrada(LocalDateTime.of(LocalDate.parse(dto.getEntrada(), formatterDate), LocalTime.of(0, 0)));
             jornada.setSalida(LocalDateTime.of(LocalDate.parse(dto.getEntrada(), formatterDate), LocalTime.of(23, 59)));
             return jornada;
@@ -121,7 +119,7 @@ public class JornadaMapper {
     public List<Jornada> dtoListToEntityList(List<JornadaDTO> dtos) throws Exception {
         List<Jornada> jornadas = new ArrayList<>();
         for (JornadaDTO dto: dtos) {
-            Jornada jornada = null;
+            Jornada jornada;
             try {
                 jornada = this.dtoToEntity(dto);
             } catch (Exception e) {

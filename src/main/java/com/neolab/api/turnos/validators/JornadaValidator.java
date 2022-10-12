@@ -64,7 +64,6 @@ JornadaRepository jornadaRepository;
         TemporalField weekNumber = WeekFields.of(Locale.getDefault()).weekOfWeekBasedYear();
         int semanaJornadaNueva = jornada.getEntrada().toLocalDate().get(weekNumber);
         //Se filtran jornadas normales/extras existentes en la misma semana
-        //TODO filtrar por distinto de dia_libre o vacaciones (para mayor inclusión)
         List<Jornada> jornadasMismaSemana = empleado
                 .getJornadas()
                 .stream()
@@ -89,7 +88,6 @@ JornadaRepository jornadaRepository;
         //  Para cada fecha, un empleado (siempre que no esté de vacaciones o haya pedido día libre)
         //  podrá cargar un turno normal, un turno extra o una combinación de ambos que no supere las 12 horas.
         long horasDelDia = 0;
-        //TODO filtrar por distinto de dia_libre o vacaciones (para mayor inclusión)
         List<Jornada> jornadasDelDia = empleado.getJornadas()
                 .stream()
                 .filter(item ->
