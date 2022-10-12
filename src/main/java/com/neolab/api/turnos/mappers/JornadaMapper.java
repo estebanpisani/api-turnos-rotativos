@@ -47,7 +47,7 @@ public class JornadaMapper {
         if(dto.getTipo() == null || dto.getTipo().isEmpty() || dto.getEntrada() == null || dto.getEntrada().isEmpty()){
             throw new Exception("Campos requeridos.");
         }
-//Se verifica si el tipo de jornada ingresado ya se encuentra en la base de datos. En caso de que sí, lo asigna como tipo de jornada.
+        //Se verifica si el tipo de jornada ingresado ya se encuentra en la base de datos. En caso de que sí, lo asigna como tipo de jornada.
         if(tipoRepository.findByNombre(dto.getTipo().trim().toLowerCase().replace(" ", "_")).orElse(null) != null){
             jornada.setTipo(tipoRepository.findByNombre(dto.getTipo().trim().toLowerCase().replace(" ", "_")).get());
         }
@@ -68,7 +68,7 @@ public class JornadaMapper {
         else{
             throw new Exception("El tipo de jornada ingresado no existe.");
         }
-//Verifica que los usuarios ingresados existan en la base de datos.
+        //Verifica que los usuarios ingresados existan en la base de datos.
         if(dto.getEmpleadosId().size()>0) {
             if(dto.getEmpleadosId().size()<=2) {
                 for (Long id : dto.getEmpleadosId()) {

@@ -14,10 +14,13 @@ public class TipoServiceImpl implements TipoService {
     @Override
     public Tipo createTipo(Tipo tipo) throws Exception {
         Tipo newTipo = new Tipo();
+
         newTipo.setNombre(tipo.getNombre());
         newTipo.setHorasDiariasMin(tipo.getHorasDiariasMin());
         newTipo.setHorasDiariasMax(tipo.getHorasDiariasMax());
-        newTipo.setHorasSemanalesMax(tipo.getHorasSemanalesMax());
+        if(tipo.getHorasSemanalesMax() != null) {
+            newTipo.setHorasSemanalesMax(tipo.getHorasSemanalesMax());
+        }
         return tipoRepository.save(newTipo);
     }
 

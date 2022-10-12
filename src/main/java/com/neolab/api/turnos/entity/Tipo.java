@@ -4,6 +4,7 @@ import lombok.Data;
 import org.hibernate.validator.constraints.UniqueElements;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 @Entity
@@ -14,8 +15,11 @@ public class Tipo implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "tipo_id")
     protected Long id;
+    @NotNull
     protected String nombre;
+    @NotNull
     protected Integer horasDiariasMax;
+    @NotNull
     protected Integer horasDiariasMin;
     protected Integer horasSemanalesMax;
 }

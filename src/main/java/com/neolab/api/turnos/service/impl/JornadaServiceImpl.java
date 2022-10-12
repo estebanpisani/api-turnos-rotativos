@@ -45,23 +45,10 @@ public class JornadaServiceImpl implements JornadaService {
                     jornadaValidator.horarioValido(jornada);
                     //Antes de crear la jornada, pasa por todos los validadores para cada caso.
                     if(jornada.getTipo().getNombre().equalsIgnoreCase("vacaciones")){
-                        Jornada newJornada = jornadaRepository.save(jornada);
-                        return jornadaMapper.entityToDTO(newJornada);
-                    }
-                    if (jornada.getTipo().getNombre().equalsIgnoreCase("normal")) {
-                        if(jornada.getEmpleados().size()>0){
-                            for (Empleado empleado: jornada.getEmpleados()) {
-                                jornadaValidator.jornadaNormalValidator(jornada, empleado);
-                            }
-                        }
-                        Jornada newJornada = jornadaRepository.save(jornada);
-                        return jornadaMapper.entityToDTO(newJornada);
-                    }
-                    if (jornada.getTipo().getNombre().equalsIgnoreCase("extra")) {
                         if(jornada.getEmpleados().size()>0){
                             for (Empleado empleado: jornada.getEmpleados()) {
                                 try {
-                                    jornadaValidator.jornadaExtraValidator(jornada, empleado);
+                                    jornadaValidator.vacacionesValidator(jornada, empleado);
                                 }
                                 catch (Exception e){
                                     throw new Exception(e.getMessage());
@@ -71,11 +58,21 @@ public class JornadaServiceImpl implements JornadaService {
                         Jornada newJornada = jornadaRepository.save(jornada);
                         return jornadaMapper.entityToDTO(newJornada);
                     }
-                    //En caso de no ser los tipos predefinidos, se usan validadores genéricos.
-                    else{
-                        throw new Exception("Error al asignar tipo.");
+                    //En caso de ser jornada normal, extra o de un tipo creado por el usuario, se usan los mismos validadores.
+                    else {
+                        if(jornada.getEmpleados().size()>0){
+                            for (Empleado empleado: jornada.getEmpleados()) {
+                                try {
+                                    jornadaValidator.jornadaLaboralValidator(jornada, empleado);
+                                }
+                                catch (Exception e){
+                                    throw new Exception(e.getMessage());
+                                }
+                            }
+                        }
+                        Jornada newJornada = jornadaRepository.save(jornada);
+                        return jornadaMapper.entityToDTO(newJornada);
                     }
-                    //TODO caso jornada creada por el usuario (Validador genérico)
                 }
                 else {
                     throw new Exception("Error al crear entidad.");
@@ -85,21 +82,16 @@ public class JornadaServiceImpl implements JornadaService {
             }
     }
 
-//    @Override
-//    public JornadaDTO updateJornada(Long id, JornadaDTO dto) throws Exception {
-//        return null;
-//    }
-
     @Override
     public JornadaDTO updateJornada(Long id, JornadaDTO dto) throws Exception {
         try {
             //Se busca la entidad en la base de datos por su id.
             Optional<Jornada> opt = jornadaRepository.findById(id);
             if (opt.isPresent()) {
-                // Se obtiene la jornada de la base de datos y se modifican sólo los datos del DTO que no son nulos y distintos.
+                // Se obtiene la jornada de la base de datos y se modifican solo los datos del DTO correspondientes al ingreso y salida.
                 DateTimeFormatter formatterHour = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm");
                 Jornada jornadaDB = opt.get();
-                //Si por el dto llega información de los empleados, los asigna a la jornada.
+                //Si por el DTO llega información de los empleados, los asigna a la jornada.
                 if(dto.getEmpleadosId().size()>0) {
                     if(dto.getEmpleadosId().size()<=2) {
                         //Se verifica que todos los empleados existan en la base de datos.
@@ -137,29 +129,13 @@ public class JornadaServiceImpl implements JornadaService {
                 if(jornadaDB.getTipo().getNombre().equalsIgnoreCase("vacaciones")){
                     return jornadaMapper.entityToDTO(jornadaRepository.save(jornadaDB));
                 }
-                if (jornadaDB.getTipo().getNombre().equalsIgnoreCase("normal")) {
-                    if(jornadaDB.getEmpleados().size()>0){
-                        for (Empleado empleado: jornadaDB.getEmpleados()) {
-                            jornadaValidator.jornadaNormalValidator(jornadaDB, empleado);
-                        }
-                    }
-                    return jornadaMapper.entityToDTO(jornadaRepository.save(jornadaDB));
-                }
-                if (jornadaDB.getTipo().getNombre().equalsIgnoreCase("extra")) {
-                    if(jornadaDB.getEmpleados().size()>0){
-                        for (Empleado empleado: jornadaDB.getEmpleados()) {
-                            try {
-                                jornadaValidator.jornadaExtraValidator(jornadaDB, empleado);
-                            }
-                            catch (Exception e){
-                                throw new Exception(e.getMessage());
-                            }
-                        }
-                    }
-                    return jornadaMapper.entityToDTO(jornadaRepository.save(jornadaDB));
-                }
                 else {
-                    throw new Exception("Tipo de jornada inexistente.");
+                    if(jornadaDB.getEmpleados().size()>0){
+                        for (Empleado empleado: jornadaDB.getEmpleados()) {
+                            jornadaValidator.jornadaLaboralValidator(jornadaDB, empleado);
+                        }
+                    }
+                    return jornadaMapper.entityToDTO(jornadaRepository.save(jornadaDB));
                 }
             }
             else {

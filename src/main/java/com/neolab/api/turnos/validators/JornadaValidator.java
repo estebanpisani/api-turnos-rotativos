@@ -1,7 +1,6 @@
 package com.neolab.api.turnos.validators;
 
 import com.neolab.api.turnos.entity.*;
-import com.neolab.api.turnos.repository.EmpleadoRepository;
 import com.neolab.api.turnos.repository.JornadaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -147,8 +146,8 @@ JornadaRepository jornadaRepository;
     }
 
     //Validaciones según tipo
-    //Normal:
-    public void jornadaNormalValidator(Jornada jornada, Empleado empleado) throws Exception{
+    //Laboral (Normal/Extra):
+    public void jornadaLaboralValidator(Jornada jornada, Empleado empleado) throws Exception{
         //Se verifica si no tiene menos de 6hs ni más de 8hs
         rangoHorarioCorrecto(jornada);
             // Se verifica si el empleado tiene jornadas cargadas
@@ -161,19 +160,6 @@ JornadaRepository jornadaRepository;
                 //Se verifica si la jornada no supera las horas semanales.
                 noSuperaHorasSemanales(jornada, empleado);
                 //Se verifica si supera las horas diarias máximas
-                noSuperaHorasDiarias(jornada, empleado);
-            }
-    }
-    //Extra
-    public void jornadaExtraValidator(Jornada jornada, Empleado empleado) throws Exception {
-        //Se verifica si no tiene menos de 2hs ni más de 6hs
-        rangoHorarioCorrecto(jornada);
-            // Se verifica si el empleado tiene jornadas cargadas
-            if (empleado.getJornadas().size() > 0) {
-                noEstaDeVacaciones(jornada, empleado);
-                noTieneDiaLibre(jornada, empleado);
-                horarioDisponible(jornada);
-                noSuperaHorasSemanales(jornada, empleado);
                 noSuperaHorasDiarias(jornada, empleado);
             }
     }
@@ -192,6 +178,14 @@ JornadaRepository jornadaRepository;
                         //No permite reemplazar jornadas laborales con dias libres.
                         throw new Exception("La fecha ingresada ya tiene una jornada laboral asignada.");
                     }
+        }
+    }
+    //Vacaciones
+    public void vacacionesValidator(Jornada jornada, Empleado empleado) throws Exception{
+        // Se verifica si el empleado tiene jornadas cargadas
+        if(empleado.getJornadas().size()>0){
+            //Se verifica si ya no está de vacaciones
+            noEstaDeVacaciones(jornada, empleado);
         }
     }
 }

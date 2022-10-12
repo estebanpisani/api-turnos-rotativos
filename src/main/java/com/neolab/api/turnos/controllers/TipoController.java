@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -25,7 +26,7 @@ public class TipoController {
     }
     //Endpoint para crear un nuevo tipo de jornada laboral.
     @PostMapping()
-    public ResponseEntity<?> createJornada(@RequestBody Tipo tipo) throws Exception{
+    public ResponseEntity<?> createJornada(@Valid @RequestBody Tipo tipo) throws Exception{
         try{
             Tipo response = tipoService.createTipo(tipo);
             return new ResponseEntity<>(response, HttpStatus.CREATED);
