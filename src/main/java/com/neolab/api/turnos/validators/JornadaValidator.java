@@ -149,8 +149,6 @@ JornadaRepository jornadaRepository;
     //Validaciones según tipo
     //Laboral (Normal/Extra):
     public void jornadaLaboralValidator(Jornada jornada, Empleado empleado) throws Exception{
-        //Se verifica si no tiene menos de 6hs ni más de 8hs
-        rangoHorarioCorrecto(jornada);
             // Se verifica si el empleado tiene jornadas cargadas
             if (empleado.getJornadas().size() > 0) {
                 noEstaDeVacaciones(jornada, empleado);

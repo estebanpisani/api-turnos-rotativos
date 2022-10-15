@@ -60,6 +60,9 @@ public class JornadaServiceImpl implements JornadaService {
                     }
                     //En caso de ser jornada normal, extra o de un tipo creado por el usuario, se usan los mismos validadores.
                     else {
+                        // TODO agregar validador sin empleados acá
+                        //Se verifica si respeta el rango horario definido por el tipo de Jornada
+                        jornadaValidator.rangoHorarioCorrecto(jornada);
                         if(jornada.getEmpleados().size()>0){
                             for (Empleado empleado: jornada.getEmpleados()) {
                                 try {
@@ -70,6 +73,7 @@ public class JornadaServiceImpl implements JornadaService {
                                 }
                             }
                         }
+
                         Jornada newJornada = jornadaRepository.save(jornada);
                         return jornadaMapper.entityToDTO(newJornada);
                     }
@@ -130,6 +134,7 @@ public class JornadaServiceImpl implements JornadaService {
                     return jornadaMapper.entityToDTO(jornadaRepository.save(jornadaDB));
                 }
                 else {
+                    jornadaValidator.rangoHorarioCorrecto(jornadaDB);
                     if(jornadaDB.getEmpleados().size()>0){
                         for (Empleado empleado: jornadaDB.getEmpleados()) {
                             jornadaValidator.jornadaLaboralValidator(jornadaDB, empleado);
