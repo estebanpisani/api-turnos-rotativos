@@ -1,7 +1,6 @@
 package com.neolab.api.turnos.entity;
 
 import lombok.Data;
-import org.hibernate.validator.constraints.UniqueElements;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;

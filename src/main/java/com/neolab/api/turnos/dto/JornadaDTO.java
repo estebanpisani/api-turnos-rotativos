@@ -1,6 +1,5 @@
 package com.neolab.api.turnos.dto;
 
-import com.neolab.api.turnos.entity.Empleado;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -19,11 +18,4 @@ public class JornadaDTO {
     public JornadaDTO() {
     }
 
-    public JornadaDTO(Long id, String entrada, String salida, String tipo, Set<Long> empleadosId) {
-        this.id = id;
-        this.entrada = entrada;
-        this.salida = salida;
-        this.tipo = tipo;
-        this.empleadosId = empleadosId;
-    }
 }
