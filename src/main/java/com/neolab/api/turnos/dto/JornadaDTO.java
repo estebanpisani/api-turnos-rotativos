@@ -1,5 +1,6 @@
 package com.neolab.api.turnos.dto;
 
+import com.neolab.api.turnos.entity.Empleado;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,7 +15,7 @@ public class JornadaDTO {
     private String salida;
     private String tipo;
     private Set<Long> empleadosId = new HashSet<>();
-
+    private Set<EmpleadoDTO> empleados = new HashSet<>();
     public JornadaDTO() {
     }
 

@@ -20,6 +20,8 @@ public class JornadaMapper {
     TipoRepository tipoRepository;
     @Autowired
     EmpleadoRepository empleadoRepository;
+    @Autowired
+    EmpleadoMapper empleadoMapper;
 
     public JornadaDTO entityToDTO(Jornada jornada){
         DateTimeFormatter formatterHour = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm");
@@ -31,8 +33,8 @@ public class JornadaMapper {
         dto.setTipo(jornada.getTipo().getNombre());
         for (Empleado empleado : jornada.getEmpleados()) {
             dto.getEmpleadosId().add(empleado.getId());
+            dto.getEmpleados().add(empleadoMapper.entityToDTO(empleado));
         }
-
         return dto;
     }
     public Jornada dtoToEntity(JornadaDTO dto) throws Exception{

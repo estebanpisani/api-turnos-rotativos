@@ -1,6 +1,5 @@
 package com.neolab.api.turnos.entity;
 
-import com.neolab.api.turnos.enums.JornadaEnum;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
