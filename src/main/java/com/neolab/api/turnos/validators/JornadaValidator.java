@@ -36,10 +36,10 @@ JornadaRepository jornadaRepository;
                         !item.getId().equals(jornada.getId()))){
             throw new Exception("El empleado "+empleado.getNombre()+" "+empleado.getApellido()+" ya tiene una jornada en ese horario.");
         }
-        else if (!jornada.getTipo().getNombre().equalsIgnoreCase("dia_libre") && !jornada.getTipo().getNombre().equalsIgnoreCase("vacaciones") && jornadaRepository.findAll().stream()
+        else if (!jornada.getTipo().getNombre().equalsIgnoreCase("dia libre") && !jornada.getTipo().getNombre().equalsIgnoreCase("vacaciones") && jornadaRepository.findAll().stream()
                 .anyMatch(item ->
                         !item.getId().equals(jornada.getId()) &&
-                                !item.getTipo().getNombre().equalsIgnoreCase("dia_libre") &&
+                                !item.getTipo().getNombre().equalsIgnoreCase("dia libre") &&
                                 !item.getTipo().getNombre().equalsIgnoreCase("vacaciones") &&
                         item.getEntrada().toLocalDate().equals(jornada.getEntrada().toLocalDate()) &&
                         (
@@ -69,7 +69,7 @@ JornadaRepository jornadaRepository;
                 .stream()
                 .filter(item->
                         item.getEntrada().toLocalDate().get(weekNumber) == semanaJornadaNueva && !item.getId().equals(jornada.getId())
-                                && (!item.getTipo().getNombre().equalsIgnoreCase("dia_libre") && !item.getTipo().getNombre().equalsIgnoreCase("vacaciones"))
+                                && (!item.getTipo().getNombre().equalsIgnoreCase("dia libre") && !item.getTipo().getNombre().equalsIgnoreCase("vacaciones"))
                 )
                 .collect(Collectors.toList());
         //Se obtienen las horas semanales
@@ -92,7 +92,7 @@ JornadaRepository jornadaRepository;
                 .stream()
                 .filter(item ->
                         item.getEntrada().toLocalDate().isEqual(jornada.getEntrada().toLocalDate()) && !item.getId().equals(jornada.getId()) &&
-                                (!item.getTipo().getNombre().equalsIgnoreCase("dia_libre") && !item.getTipo().getNombre().equalsIgnoreCase("vacaciones"))
+                                (!item.getTipo().getNombre().equalsIgnoreCase("dia libre") && !item.getTipo().getNombre().equalsIgnoreCase("vacaciones"))
                 )
                 .collect(Collectors.toList());
         for (Jornada item: jornadasDelDia) {
@@ -110,7 +110,7 @@ JornadaRepository jornadaRepository;
     public void noTieneDiaLibre(Jornada jornada, Empleado empleado) throws Exception{
     //  Si un empleado cargó “Dia libre” no podrá trabajar durante las 24 horas correspondientes a ese día.
         if (empleado.getJornadas().stream().anyMatch(item -> item.getEntrada().toLocalDate().isEqual(jornada.getEntrada().toLocalDate()) &&
-                (item.getTipo().getNombre().equalsIgnoreCase("dia_libre")))){
+                (item.getTipo().getNombre().equalsIgnoreCase("dia libre")))){
             throw new Exception("El empleado "+empleado.getNombre()+" "+empleado.getApellido()+" tiene el día libre");
         }
     }
@@ -139,7 +139,7 @@ JornadaRepository jornadaRepository;
                 .stream()
                 .filter(item->
                         item.getEntrada().toLocalDate().get(weekNumber) == jornada.getEntrada().toLocalDate().get(weekNumber)
-                                && item.getTipo().getNombre().equalsIgnoreCase("dia_libre") && !item.getId().equals(jornada.getId())
+                                && item.getTipo().getNombre().equalsIgnoreCase("dia libre") && !item.getId().equals(jornada.getId())
                 )
                 .count()==maximo){
             throw new Exception("El empleado "+empleado.getNombre()+" "+empleado.getApellido()+" no tiene días libres disponibles para esa semana.");

@@ -32,7 +32,7 @@ public class JornadaServiceImpl implements JornadaService {
                 Jornada jornada = jornadaMapper.dtoToEntity(dto);
                 if(jornada != null) {
                     //Se validan los datos según el tipo de jornada.
-                    if (jornada.getTipo().getNombre().equalsIgnoreCase("dia_libre")) {
+                    if (jornada.getTipo().getNombre().equalsIgnoreCase("dia libre")) {
                         if(jornada.getEmpleados().size()>0){
                             for (Empleado empleado: jornada.getEmpleados()) {
                                 jornadaValidator.diaLibreValidator(jornada, empleado);
@@ -119,7 +119,7 @@ public class JornadaServiceImpl implements JornadaService {
                     LocalDateTime horaSalida = LocalDateTime.parse(dto.getSalida(), formatterHour);
                     jornadaDB.setSalida(horaSalida);
                 }
-                if (jornadaDB.getTipo().getNombre().equalsIgnoreCase("dia_libre")) {
+                if (jornadaDB.getTipo().getNombre().equalsIgnoreCase("dia libre")) {
                     if(jornadaDB.getEmpleados().size()>0){
                         for (Empleado empleado: jornadaDB.getEmpleados()) {
                             jornadaValidator.diaLibreValidator(jornadaDB, empleado);

@@ -63,7 +63,7 @@ public class JornadaMapper {
         else if(dto.getTipo().trim().equalsIgnoreCase("vacaciones")){
             jornada.setTipo(new Vacaciones());
         }
-        else if(dto.getTipo().trim().replace(" ", "_").equalsIgnoreCase("dia_libre")){
+        else if(dto.getTipo().trim().replace("_"," " ).equalsIgnoreCase("dia libre")){
             jornada.setTipo(new DiaLibre());
         }
         else{
@@ -87,7 +87,7 @@ public class JornadaMapper {
         }
 
         //Si es Día Libre se le asigna el horario de entrada y salida para que siempre sea de 24hs
-        if (jornada.getTipo().getNombre().equals("dia_libre")) {
+        if (jornada.getTipo().getNombre().equals("dia libre")) {
             jornada.setEntrada(LocalDateTime.of(LocalDate.parse(dto.getEntrada(), formatterDate), LocalTime.of(0, 0)));
             jornada.setSalida(LocalDateTime.of(LocalDate.parse(dto.getEntrada(), formatterDate), LocalTime.of(23, 59)));
             return jornada;
