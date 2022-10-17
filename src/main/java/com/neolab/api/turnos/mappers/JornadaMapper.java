@@ -49,8 +49,8 @@ public class JornadaMapper {
             throw new Exception("Campos requeridos.");
         }
         //Se verifica si el tipo de jornada ingresado ya se encuentra en la base de datos. En caso de que sí, lo asigna como tipo de jornada.
-        if(tipoRepository.findByNombre(dto.getTipo().trim().toLowerCase().replace(" ", "_")).orElse(null) != null){
-            jornada.setTipo(tipoRepository.findByNombre(dto.getTipo().trim().toLowerCase().replace(" ", "_")).get());
+        if(tipoRepository.findByNombre(dto.getTipo().trim().toLowerCase()).orElse(null) != null){
+            jornada.setTipo(tipoRepository.findByNombre(dto.getTipo().trim().toLowerCase()).get());
         }
         //En caso de que no, se crea una jornada de los tipos predefinidos.
         else if(dto.getTipo().trim().equalsIgnoreCase("normal")){
@@ -63,7 +63,7 @@ public class JornadaMapper {
         else if(dto.getTipo().trim().equalsIgnoreCase("vacaciones")){
             jornada.setTipo(new Vacaciones());
         }
-        else if(dto.getTipo().trim().replace("_"," " ).equalsIgnoreCase("dia libre")){
+        else if(dto.getTipo().trim().equalsIgnoreCase("dia libre")){
             jornada.setTipo(new DiaLibre());
         }
         else{

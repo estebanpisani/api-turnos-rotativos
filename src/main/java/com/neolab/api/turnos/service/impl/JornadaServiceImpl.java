@@ -159,7 +159,7 @@ public class JornadaServiceImpl implements JornadaService {
         List<JornadaDTO> dtos = new ArrayList<>();
         //En caso de añadir un parámetro de tipo, se filtra con la API Stream
         if(tipo != null){
-            List<Jornada> jornadasFiltradas = jornadas.stream().filter(item-> item.getTipo().toString().equalsIgnoreCase(tipo.trim().replace(" ","_"))).collect(Collectors.toList());
+            List<Jornada> jornadasFiltradas = jornadas.stream().filter(item-> item.getTipo().toString().equalsIgnoreCase(tipo.trim())).collect(Collectors.toList());
             if(jornadasFiltradas.size()>0){
                 dtos = jornadaMapper.entityListToDTOList(jornadasFiltradas);
             }
@@ -175,7 +175,7 @@ public class JornadaServiceImpl implements JornadaService {
         List<JornadaDTO> dtos = new ArrayList<>();
         //En caso de añadir un parámetro de tipo, se filtra con la API Stream
         if(tipo != null){
-            List<Jornada> jornadasFiltradas = jornadas.stream().filter(item-> item.getTipo().toString().equalsIgnoreCase(tipo.trim().replace(" ","_"))).collect(Collectors.toList());
+            List<Jornada> jornadasFiltradas = jornadas.stream().filter(item-> item.getTipo().toString().equalsIgnoreCase(tipo.trim())).collect(Collectors.toList());
             if(jornadasFiltradas.size()>0){
             dtos = jornadaMapper.entityListToDTOList(jornadasFiltradas);
             }
