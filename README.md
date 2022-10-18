@@ -1,10 +1,43 @@
 # Neoris Lab Java 2022 - Trabajo Páctico Nro. 2
-Api para Turnos Rotativos
+La API responde a la necesidad del manejo de turnos rotativos, permitiendo a los usuarios gestionar las horas de trabajo y su jornada laboral.
 
 ## Funcionalidades
 
 - [ ] CRUD Empleado
 - [ ] CRUD Jornada Laboral
+- [ ] CRUD Tipo de Jornada Laboral
+
+## Descripción
+
+Esta API permite:
+- Dar de alta, editar y eliminar un empleado.
+- Dar de alta un tipo de jornada laboral (Turno Extra, Vacaciones, Día Libre, Turno Normal,
+etc.).
+- Cargar la jornada laboral de un empleado, especificando el tipo, la fecha, hora de entrada y
+salida.
+- Listar para cada empleado la cantidad de horas cargadas por cada tipo de jornada laboral. 
+- Mdificar la cantidad de horas de una jornada laboral previamente cargada.
+
+### Validaciones por Tipo.
+La API permite crear distintos tipos de jornadas especificando horas mínimas y máximas tanto para el día como para la semana.
+Con estos atributos es posible validar cualquier tipo de jornada laboral.
+Hay 4 tipos de Jornada previamente definidos.
+- Normal
+- Extra
+- Dia Libre
+- Vacaciones
+
+Existen validaciones particulares solo para las tipos Dia Libre y Vacaciones.
+Para el resto - Normal, Extra y cualquier tipo creado por el usuario - las validaciones son genéricas.
+
+- Cada empleado no puede trabajar más de 48 horas semanales.
+- Las horas de un turno normal pueden variar entre 6 y 8, y las de un turno extra entre 2 y 6.
+- Para cada fecha, un empleado podrá cargar un turno normal, un turno extra o una combinación de ambos que no supere
+las 12 horas.
+- Por cada turno no puede haber más que 2 empleados.
+- No se pueden cargar jornadas en fechas en las que el empleado tenga Dia Libre o Vacaciones.
+- No se pueden cargar jornadas de ningún tipo en la misma fecha y horario que otra cargada previamente. De ser necesario, es posible editar las horas de cada jornada (Dia Libre y Vacaciones están exceptuadas).
+- En la semana el empleado podrá tener hasta 2 días libres.
 
 ## Endpoints
 
@@ -23,6 +56,12 @@ Api para Turnos Rotativos
 - `[GET] /api/calendario/:id`: Obtiene una única jornada laboral referenciada por su ID.
 - `[PUT] /api/calendario/:id`: Actualiza la información de una jornada laboral específica.
 - `[DELETE] /api/calendario/:id`: Elimina una jornada laboral de la base de datos.
+
+### Tipo
+
+- `[GET] /api/tipos`: lista todos los tipos de jornadas laborales disponibles en la base de datos.
+- `[POST] /api/tipos`: Agrega un nuevo tipo de jornada laboral.
+- `[DELETE] /api/tipos/:id`: Elimina un tipo de jornada laboral de la base de datos.
 
 ## Instrucciones
 Una vez iniciada la aplicación, importar en Postman la colección adjunta con el nombre `API Turnos Rotativos.postman_collection.json`.
@@ -44,34 +83,33 @@ Estos ya están ingresados en la colección de POSTMAN adjunta (.json).
 {
   "nombre": string,
   "apellido": string,
-  "fechaDeNacimiento": "yyyy/MM/dd",
+  "fechaDeNacimiento": string:"yyyy/MM/dd",
   "email": string,
-  "fechaAlta": "yyyy/MM/dd",
-  "fechaBaja": "yyyy/MM/dd" (opcional para POST)
+  "fechaAlta": string:"yyyy/MM/dd",
+  "fechaBaja": string:"yyyy/MM/dd" (opcional para POST)
  }
  `
- ### Jornada
+ ### Jornada*
  `
 {
-  "entrada": "yyyy/MM/dd hh:mm",
-  "salida": "yyyy/MM/dd hh:mm",
   "tipo": string,
-  "empleadoId": int,
+  "entrada": string:"yyyy/MM/dd hh:mm",
+  "salida": string:"yyyy/MM/dd hh:mm",
+  "empleadosId": int[]
  }
  `
  
- 
- El campo empleadoId siempre es requerido. No es posible asignar una jornada laboral sin empleado.
- Depende cada tipo de jornada (Normal, Extra, Dia Libre, Vacaciones), los campos serán requeridos o ignorados.
- Sólo en el caso de Vacaciones, los campos `"entrada"` y `"salida"` requieren un formato `"yyyy/MM/dd"`.
- 
-## Comentarios
-- No logré encontrar una forma de solucionar los tipos de Jornadas con distintas clases, por lo que al tener clases especificadas con Enums, no logré desarrollar un
-endpoint para crear un tipo de jornada nuevo.
-En su defecto, las consignas según cada tipo fueron resueltas con validaciones.
-- La relación de Empleado y Jornada debería ser ManyToMany. Por cuestiones de tiempo logré terminar la aplicación pero utilizando una relación OneToMany
-Por lo que las jornadas sólo se crean para un solo empleado a la vez.
-Estuve hasta última hora refactorizando para utilizar la relación ManyToMany pero no logré finalizarlo antes del horario de entrega.
+  *Los campos `"tipo"` y `"entrada"`son requeridos para todos los casos. Sólo en el caso de `"dia libre"` el campo y `"vacaciones"`, los campos `"entrada"` y `"salida"` requieren un formato `"yyyy/MM/dd"`.
+
+ ### Tipo
+ `
+{
+  "nombre": string,
+  "horasDiariasMax": int,
+  "horasDiariasMin": int,
+  "horasSemanalesMax": int,
+ }
+ `
 
 ## Autor
 Esteban Pisani
