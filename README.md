@@ -1,4 +1,4 @@
-# Lab Java 2022 - Trabajo Páctico Nro. 2
+# API Agenda Turnos Rotativos
 La API responde a la necesidad del manejo de turnos rotativos, permitiendo a los usuarios gestionar las horas de trabajo y su jornada laboral.
 Este proyecto fue desarrollado con motivos didácticos y únicamente para enriquecer mi experiencia desarrollando con Java.
 
